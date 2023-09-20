@@ -1,0 +1,7 @@
+-r requirements.txt
+
+jupyter-core
+jupyterlab
+black
+flake8
+isort
