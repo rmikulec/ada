@@ -28,6 +28,8 @@ argon2-cffi-bindings==21.2.0
     # via argon2-cffi
 arrow==1.2.3
     # via isoduration
+arxiv==1.4.8
+    # via -r requirements.txt
 asttokens==2.4.0
     # via stack-data
 async-lru==2.0.4
@@ -91,6 +93,10 @@ fastapi==0.103.1
     # via -r requirements.txt
 fastjsonschema==2.18.0
     # via nbformat
+feedparser==6.0.10
+    # via
+    #   -r requirements.txt
+    #   arxiv
 flake8==6.1.0
     # via -r dev.in
 fonttools==4.42.1
@@ -344,6 +350,10 @@ rpds-py==0.10.3
     #   referencing
 send2trash==1.8.2
     # via jupyter-server
+sgmllib3k==1.0.0
+    # via
+    #   -r requirements.txt
+    #   feedparser
 six==1.16.0
     # via
     #   -r requirements.txt
