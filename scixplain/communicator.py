@@ -43,6 +43,11 @@ class Communicator:
         self.client = OpenAI()
         self.max_tokens = max_tokens
 
+    def _get_wikipedia_content(self, title, section):
+        page = list(filter(lambda p: p.title == title), self.pages)[0]
+        section_content = page.get_section_content(section)
+        return json.dumps(section_content, indent=4)
+
     def _get_num_tokens(self, text):
         encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)
         return len(encoder.encode(text))
@@ -52,11 +57,6 @@ class Communicator:
         results = results[0:n_pages]
 
         return [WikiPage(title=result) for result in results]
-
-    def _get_section_content(self, title, section):
-        page = list(filter(lambda p: p.title == title, self.pages))[0]
-
-        return "\n".join(page.indexed_content[section])
 
     def _create_data(self):
         data = []

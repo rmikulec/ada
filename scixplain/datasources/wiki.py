@@ -11,6 +11,7 @@ class WikiPage(wikipedia.WikipediaPage):
         self.html = BeautifulSoup(self.html(), features="html.parser")
         self.image_captions = self._get_all_image_captions()
         self.indexed_content = self._build_sections()
+        self.indexed_refs = {i + 1: ref for i, ref in enumerate(self.references)}
 
     # TODO: Update function to handle thumbnail images
     def _get_all_image_captions(self) -> Dict[str, str]:
@@ -59,3 +60,18 @@ class WikiPage(wikipedia.WikipediaPage):
                 }
                 sections[current_section].append(sub_data)
         return sections
+
+    def get_section_content(self, section):
+        section = self.indexed_content[section]
+        section_text = "\n".join([paragraph["text"] for paragraph in section])
+        section_citations = []
+        for paragraph in section:
+            section_citations.extend(paragraph["citations"])
+        section_citations = list(set(section_citations))
+
+        return {
+            "text": section_text,
+            "references": dict(
+                sorted({i: self.indexed_refs[i] for i in section_citations}.items())
+            ),
+        }
