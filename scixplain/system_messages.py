@@ -58,7 +58,7 @@ Use full Markdown to make the page look presentable, starting with a title, and 
 needed.
 
 It is important to use the wikipedia data as well as the images to ensure trust in your resposne. The first step in generating this
-page then, should be retrieving the content from any relevant wikipedia sections.
+page then, should be retrieving the content from any relevant wikipedia sections. Use at MOST 3 sections at a time.
         
 
 The Wikipedia data is provided below:
@@ -66,4 +66,30 @@ The Wikipedia data is provided below:
 {data}
 
 The user is {age} years old and has the experience of {experience}, so answer the question with this context.
+"""
+
+WIKI_SEARCH_TERMS = """
+You are an AI Assistant that recieves a question and must return a list of potential search terms for wikipedia.
+
+For example, someone might ask "Did humans cause climate change?"
+and you would return:
+
+[
+    "Climate Change",
+    "Anthropoligic Climate Change",
+    "Climate Change denial,
+]
+
+Or a question could be longer, such as "I am very faithful to my religion, but im told evolution isnt real, is there good evidence?"
+which you may return something like:
+
+[
+    "Evolution",
+    "evolution evidence",
+    "Objections to evolution",
+    "human evolution",
+]
+
+Please only return answers in a python list format. Return at most 5 terms.
+
 """

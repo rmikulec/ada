@@ -50,7 +50,10 @@ class WikiPage(wikipedia.WikipediaPage):
                     citations = []
 
                 def __get_num_from_string(s):
-                    return [int(num) for num in re.findall(r"\d+", s)][0]
+                    try:
+                        return [int(num) for num in re.findall(r"\d+", s)][0]
+                    except IndexError:
+                        return None
 
                 sub_data = {
                     "text": paragraph.text,
