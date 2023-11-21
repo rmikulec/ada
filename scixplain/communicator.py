@@ -44,7 +44,7 @@ class Communicator:
         self.max_tokens = max_tokens
 
     def _get_wikipedia_content(self, title, section):
-        page = list(filter(lambda p: p.title == title), self.pages)[0]
+        page = list(filter(lambda p: p.title == title, self.pages))[0]
         section_content = page.get_section_content(section)
         return json.dumps(section_content, indent=4)
 
@@ -91,7 +91,7 @@ class Communicator:
             for tool_call in tool_calls:
                 func_args = json.loads(tool_call.function.arguments)
                 print(f"Getting section {func_args['section']} from {func_args['title']}")
-                content = self._get_section_content(
+                content = self._get_wikipedia_content(
                     title=func_args["title"], section=func_args["section"]
                 )
                 tool_message = {
