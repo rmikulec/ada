@@ -20,6 +20,8 @@ class WikiPage(wikipedia.WikipediaPage):
         for fig in figures:
             try:
                 img_src = fig.findAll(name="a")[0].findAll(name="img")[0].attrs["src"]
+                if img_src.startswith("//"):
+                    img_src = "https:" + img_src
                 img_caption = fig.findAll(name="figcaption")[0].text
                 data[img_src] = img_caption
             except IndexError:
