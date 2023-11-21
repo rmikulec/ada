@@ -123,7 +123,7 @@ class Communicator:
                     "role": "tool",
                     "tool_call_id": tool_call.id,
                     "name": tool_call.function.name,
-                    "content": "\n".join(content),
+                    "content": content,
                 }
                 self.messages.append(tool_message)
             self._call_openai()
