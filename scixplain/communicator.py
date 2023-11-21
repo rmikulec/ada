@@ -5,7 +5,7 @@ import wikipedia
 import tiktoken
 
 from scixplain import DEFAULT_MODEL
-from scixplain.system_messages import DEFAULT
+from scixplain.system_messages import DEFAULT, WIKI_SEARCH_TERMS
 from scixplain.functions import WIKI_FUNCTIONS
 from scixplain.datasources.wiki import WikiPage
 
@@ -20,6 +20,9 @@ class Communicator:
         max_tokens=300,
         n_pages: int = 1,
     ):
+        self.client = OpenAI()
+        self.max_tokens = max_tokens
+
         self.initial_question = initial_question
         self.age = age
         self.experience = experience
@@ -32,7 +35,7 @@ class Communicator:
         )
         self.system_message_n_tokens = self._get_num_tokens(self.system_message)
 
-        if self.system_message_n_tokens >= 6_000:
+        if self.system_message_n_tokens >= 50_000:
             raise Exception(f"Too many tokens, try reducing pages: {self.system_message_n_tokens}")
 
         self.messages = [
@@ -40,8 +43,18 @@ class Communicator:
             {"role": "user", "content": self.initial_question},
         ]
 
-        self.client = OpenAI()
-        self.max_tokens = max_tokens
+    def _get_wiki_search_terms(self, question):
+        response = self.client.chat.completions.create(
+            model=DEFAULT_MODEL,
+            messages=[
+                {"role": "system", "content": WIKI_SEARCH_TERMS},
+                {"role": "user", "content": question},
+            ],
+            max_tokens=50,
+        )
+
+        message = response.choices[0].message.content
+        return json.loads(message)
 
     def _get_wikipedia_content(self, title, section):
         page = list(filter(lambda p: p.title == title, self.pages))[0]
@@ -52,9 +65,15 @@ class Communicator:
         encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)
         return len(encoder.encode(text))
 
+    # TODO: Would like to update to do round robin addding.
+    #   So take the firdt page from each term, then the second
+    #   and so on
+    # For now, just going to limit the terms instead of pages
     def _get_pages(self, question, n_pages=1):
-        results = wikipedia.search(question)
-        results = results[0:n_pages]
+        terms = self._get_wiki_search_terms(question)
+        limited_terms = terms[0:n_pages]
+
+        results = [wikipedia.search(term)[0] for term in limited_terms]
 
         return [WikiPage(title=result) for result in results]
 
