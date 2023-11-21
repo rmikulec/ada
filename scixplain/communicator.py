@@ -73,11 +73,9 @@ class Communicator:
     def _get_pages(self, question, n_pages=1):
         terms = self._get_wiki_search_terms(question)
         terms = list(set(terms))
+        print(terms)
 
-        potential_pages = []
-
-        for term in terms:
-            potential_pages.extend(wikipedia.search(term)[0:3])
+        potential_pages = [wikipedia.search(term)[0] for term in terms]
 
         potential_pages = list(set(potential_pages))
         results = potential_pages[0:n_pages]
