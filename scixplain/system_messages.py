@@ -58,7 +58,8 @@ Use full Markdown to make the page look presentable, starting with a title, and 
 needed.
 
 It is important to use the wikipedia data as well as the images to ensure trust in your resposne. The first step in generating this
-page then, should be retrieving the content from any relevant wikipedia sections. Use at MOST 3 sections at a time.
+page then, should be retrieving the content from any relevant wikipedia sections. 
+Use {n_sections} sections at a time.
         
 
 The Wikipedia data is provided below:

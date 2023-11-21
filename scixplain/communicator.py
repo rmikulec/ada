@@ -19,6 +19,7 @@ class Communicator:
         system_template: str = DEFAULT,
         max_tokens=300,
         n_pages: int = 1,
+        n_sections: int = 3,
     ):
         self.client = OpenAI()
         self.max_tokens = max_tokens
@@ -31,7 +32,7 @@ class Communicator:
 
         # Create system message
         self.system_message = system_template.format(
-            data=self.data, age=self.age, experience=self.experience
+            data=self.data, age=self.age, experience=self.experience, n_sections=n_sections
         )
         self.system_message_n_tokens = self._get_num_tokens(self.system_message)
 
@@ -66,15 +67,20 @@ class Communicator:
         return len(encoder.encode(text))
 
     # TODO: Would like to update to do round robin addding.
-    #   So take the firdt page from each term, then the second
+    #   So take the first page from each term, then the second
     #   and so on
     # For now, just going to limit the terms instead of pages
     def _get_pages(self, question, n_pages=1):
         terms = self._get_wiki_search_terms(question)
-        limited_terms = terms[0:n_pages]
+        terms = list(set(terms))
 
-        results = [wikipedia.search(term)[0] for term in limited_terms]
+        potential_pages = []
 
+        for term in terms:
+            potential_pages.extend(wikipedia.search(term)[0:3])
+
+        potential_pages = list(set(potential_pages))
+        results = potential_pages[0:n_pages]
         return [WikiPage(title=result) for result in results]
 
     def _create_data(self):
