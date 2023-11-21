@@ -1,4 +1,5 @@
 import wikipedia
+import re
 from bs4 import BeautifulSoup
 
 from typing import Dict, List
@@ -38,10 +39,23 @@ class WikiPage(wikipedia.WikipediaPage):
         current_section = "Summary"
         sections[current_section] = []
 
-        for child in list(list(self.html.children)[0].children):
-            if child.name == "h2":
-                current_section = child.find(name="span").text
+        for paragraph in list(list(self.html.children)[0].children):
+            if paragraph.name == "h2":
+                current_section = paragraph.find(name="span").text
                 sections[current_section] = []
-            elif child.name == "p":
-                sections[current_section].append(child.text)
+            elif paragraph.name == "p":
+                citations = paragraph.findAll(name="sup", attrs={"class": "reference"})
+                if not citations:
+                    citations = []
+
+                def __get_num_from_string(s):
+                    return [int(num) for num in re.findall(r"\d+", s)][0]
+
+                sub_data = {
+                    "text": paragraph.text,
+                    "citations": [
+                        __get_num_from_string(citation.text) for citation in list(citations)
+                    ],
+                }
+                sections[current_section].append(sub_data)
         return sections
