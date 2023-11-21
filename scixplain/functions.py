@@ -7,9 +7,9 @@ WIKI_FUNCTIONS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "page": {
+                    "title": {
                         "type": "string",
-                        "description": "The name of the Wikipedia Page",
+                        "description": "The title of the Wikipedia Page",
                     },
                     "section": {
                         "type": "string",

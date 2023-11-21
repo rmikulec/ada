@@ -35,7 +35,10 @@ class Communicator:
         if self.system_message_n_tokens >= 6_000:
             raise Exception(f"Too many tokens, try reducing pages: {self.system_message_n_tokens}")
 
-        self.messages = [{"role": "system", "content": self.system_message}]
+        self.messages = [
+            {"role": "system", "content": self.system_message},
+            {"role": "user", "content": self.initial_question},
+        ]
 
         self.client = OpenAI()
         self.max_tokens = max_tokens
@@ -50,26 +53,28 @@ class Communicator:
 
         return [WikiPage(title=result) for result in results]
 
-    def _get_section_content(self, page, section):
-        page = filter(lambda p: p.title == page, self.pages)
+    def _get_section_content(self, title, section):
+        page = list(filter(lambda p: p.title == title, self.pages))[0]
 
         return "\n".join(page.indexed_content[section])
 
     def _create_data(self):
-        data = {}
+        data = []
 
         for page in self.pages:
-            data[page.title] = {
-                "images": page.image_captions,
-                "sections": list(page.indexed_content.keys()),
-                "url": page.url,
-                # "references": {i+1: ref for i, ref in enumerate(page.references)}
-            }
+            data.append(
+                {
+                    "title": page.title,
+                    "images": page.image_captions,
+                    "sections": list(page.indexed_content.keys()),
+                    "url": page.url,
+                    # "references": {i+1: ref for i, ref in enumerate(page.references)}
+                }
+            )
 
         return json.dumps(data, indent=4)
 
     def _call_openai(self):
-        self.messages.append({"role": "user", "content": self.initial_question})
         response = self.client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=self.messages,
@@ -78,27 +83,33 @@ class Communicator:
         )
 
         response_message = response.choices[0].message
+        tool_calls = response_message.tool_calls
 
-        if "tools_calls" in response_message:
-            assistant_response = response.choices[0].message
-            func_args = json.loads(assistant_response.tool_calls[0].function.arguments)
-            content = self._get_section_content(
-                page=func_args["page"], section=func_args["section"]
-            )
-            tool_message = {
-                "role": "tool",
-                "tool_call_id": assistant_response.tool_calls[0].id,
-                "name": assistant_response.tool_calls[0].function.name,
-                "content": "\n".join(content),
-            }
-            self.messages.append(assistant_response)
-            self.messages.append(tool_message)
+        self.messages.append(response_message)
+
+        if tool_calls:
+            for tool_call in tool_calls:
+                func_args = json.loads(tool_call.function.arguments)
+                print(f"Getting section {func_args['section']} from {func_args['title']}")
+                content = self._get_section_content(
+                    title=func_args["title"], section=func_args["section"]
+                )
+                tool_message = {
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": tool_call.function.name,
+                    "content": "\n".join(content),
+                }
+                self.messages.append(tool_message)
             self._call_openai()
-        else:
-            self.messages.append({"role": "assistant", "content": response_message.content})
 
     def _export_results(self):
-        md = self.messages[-1]["content"]
+        last_message = self.messages[-1]
+
+        if type(last_message) == dict:
+            md = self.messages[-1]["content"]
+        else:
+            md = self.messages[-1].content
         root = pathlib.Path("./answers")
         root.mkdir(exist_ok=True, parents=True)
         (root / self.initial_question.lower().replace(" ", "-")).write_text(md)
