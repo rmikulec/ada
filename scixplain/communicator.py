@@ -2,6 +2,7 @@ from openai import AsyncOpenAI, OpenAI
 import json
 import pathlib
 import wikipedia
+import tiktoken
 
 from scixplain import DEFAULT_MODEL
 from scixplain.system_messages import DEFAULT
@@ -29,10 +30,19 @@ class Communicator:
         self.system_message = system_template.format(
             data=self.data, age=self.age, experience=self.experience
         )
+        self.system_message_n_tokens = self._get_num_tokens(self.system_message)
+
+        if self.system_message_n_tokens >= 6_000:
+            raise Exception(f"Too many tokens, try reducing pages: {self.system_message_n_tokens}")
+
         self.messages = [{"role": "system", "content": self.system_message}]
 
         self.client = OpenAI()
         self.max_tokens = max_tokens
+
+    def _get_num_tokens(self, text):
+        encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)
+        return len(encoder.encode(text))
 
     def _get_pages(self, question, n_pages=1):
         results = wikipedia.search(question)
@@ -53,6 +63,7 @@ class Communicator:
                 "images": page.image_captions,
                 "sections": list(page.indexed_content.keys()),
                 "url": page.url,
+                # "references": {i+1: ref for i, ref in enumerate(page.references)}
             }
 
         return json.dumps(data, indent=4)
