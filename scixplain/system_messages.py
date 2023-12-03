@@ -43,11 +43,11 @@ a page on wikipedia. Each entry will contain the the title of the page, the name
 
 The generated markdown page MUST follow these guidelines:
  - Use titles, headers, lists when needed
- - Any references (i.e, [^6]) must be linked to an entry at the end of the file
  - {n_sections} sections from the data below MUST be used. Text and references are obtained with a function call.
  - Images are greatly encouraged (especially for younger ages) as they can keep the user more engadged or they can be a great way to show the data.
     Image links and captions are provided below for each wiki page.
-
+ - After requesting for content from a section, references will be returned as well. Make sure that you use the right reference when using informtation from the section.
+ - Any references (i.e, [^6]) must be linked to an entry at the end of the file
 
 Provided Information:        
 
