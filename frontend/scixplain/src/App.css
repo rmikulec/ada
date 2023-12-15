@@ -1,0 +1,88 @@
+/* App.css */
+.App {
+  text-align: center;
+  min-height: 100vh; /* Ensure the app takes up at least the entire viewport height */
+  display: flex;
+  flex-direction: column; /* Arrange children in a column */
+}
+
+.App-header {
+  background-color: #004F6D; /* Optional: Add a background color to the header */
+  color: #8AC6D0;
+  top: 0; /* Position it at the top */
+  width: 100%; /* Occupy the full width */
+  padding: 10px; /* Optional: Add padding for spacing */
+}
+
+/* Set a fixed height for the app's content container */
+.App-content {
+  flex-grow: 1; /* Allow the content container to grow and take up available space */
+  overflow: hidden; /* Hide content that overflows the container */
+  position: relative; /* Establish a positioning context for children */
+}
+
+/* Allow overflow-y scrolling for the markdown container */
+.markdown-container {
+  max-height: 100%; /* Allow it to take up the available space within its parent */
+  overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
+}
+
+.chat-container {
+  max-width: 33vh;
+  min-height: 90vh;
+  padding: 20px 50px;
+}
+
+.chat-box {
+  border: 1px solid #ccc;
+  padding: 20px 50px;
+  min-height: 70vh;
+  overflow-y: scroll;
+}
+
+.chat-section {
+  background-color: #8AC6D0;
+}
+
+.message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.message.user {
+  background-color: #28a745;
+  color: white;
+  align-self: flex-end;
+}
+
+.message.chatbot {
+  background-color: #8AC6D0;
+  color: #333;
+  align-self: flex-start;
+}
+
+.message p {
+  margin: 0;
+}
+
+.form-control {
+  min-width: 40vh;
+  padding-right: 2px;
+}
+
+.message-input {
+  display: flex;
+  margin-top: 10px;
+  min-width: 50vh;
+}
+
+.explained-document {
+  max-height: 90vh; /* Adjust the maximum height as needed */
+  overflow-y: auto; /* Enable vertical scrolling when content exceeds the height */
+  text-align: left;
+  padding: 50px 50px;
+}
+body {
+  overflow: hidden;
+}
