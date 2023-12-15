@@ -71,7 +71,9 @@ class WikiPage(wikipedia.WikipediaPage):
         for paragraph in section:
             section_citations.extend(paragraph["citations"])
         section_citations = list(set(section_citations))
-
+        section_citations = list(
+            filter(lambda c: c in self.indexed_refs.keys(), section_citations)
+        )
         return {
             "text": section_text,
             "references": dict(
