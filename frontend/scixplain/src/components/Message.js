@@ -1,8 +1,12 @@
 import React from 'react';
 
+import './Message.css'
+
+
 function Message({ id, text, isSelected, onClick }) {
   const messageClass = isSelected ? 'user' : 'chatbot';
   const messageID = id
+
   const handleClick = () => {
     // Call the onClick function when a message is clicked
     console.log(text)
