@@ -1,7 +1,8 @@
 # sciXplain
 Have any of you science questions answered in well structured way... with references!
 
-![image](https://github.com/rmikulec/scixplain/assets/15821744/5f9cd99b-c10c-4856-bb73-4de140c1e58e)
+<img width="1509" alt="Screenshot 2023-12-15 at 12 30 57 PM" src="https://github.com/rmikulec/scixplain/assets/15821744/e6cb1e52-3781-4a65-accb-c5b1325fa6b9">
+
 
 
 ## Run Locally
