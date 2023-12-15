@@ -1,2 +1,63 @@
-# scixplain
-A GPT-driven science explainer!
+# sciXplain
+Have any of you science questions answered in well structured way... with references!
+
+![image](https://github.com/rmikulec/scixplain/assets/15821744/5f9cd99b-c10c-4856-bb73-4de140c1e58e)
+
+
+## Run Locally
+
+### Prequisites
+ - NodeJS
+ - Python (>= version 3.9)
+ - Have an OpenAI Key
+
+
+### Steps
+
+
+#### Start the backend
+
+If reqs have not been installed by running
+
+```bash
+pip install -r requirements.txt
+```
+
+Export your openai key to environment variables. Can can either run directly in terminal, or create a `.env` file.
+
+Terminal:
+
+```bash
+export OPENAI_API_KEY="<your-key>"
+```
+
+`.env`:
+```.env
+OPENAI_API_KEY=<your-key>
+```
+
+Then run the following to start the backend server
+
+```bash
+cd ./backend
+python3 -m scixplain.app
+```
+
+#### Start the react app:
+
+If reqs have not been installed by running
+
+```bash
+npx npm install
+```
+
+Then run the following to start the frontend server
+
+```bash
+cd frontend/scixplain
+npx npm start
+```
+
+
+Go to `http://localhost:3000/` and enjoy!
+
