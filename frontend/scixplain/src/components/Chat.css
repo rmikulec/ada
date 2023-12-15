@@ -1,0 +1,21 @@
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  .message-enter {
+    animation: fadeIn 0.5s, slideUp 0.5s;
+  }

@@ -1,5 +1,8 @@
 // components/Chat.js
+import './Chat.css';
+
 import React, { useState } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Container, Row, Col, Form } from 'react-bootstrap'; // Import Spinner from react-bootstrap
 import Message from './Message';
 
@@ -37,7 +40,13 @@ function Chat() {
       <Row>
         <Col>
           <div className="chat-box">
+          <TransitionGroup>
             {questions.map((question) => (
+            <CSSTransition
+              key={question.id}
+              timeout={500}
+              classNames="message"
+            >
               <Message 
                 key={question.id}
                 id={question.id}
@@ -45,7 +54,9 @@ function Chat() {
                 isSelected={selectedQuestion.id === question.id}
                 onClick={handleSelectQuestion}
               />
+              </CSSTransition>
             ))}
+            </TransitionGroup>
           </div>
           <Form className="message-input">
             <Form.Group as={Row}>
