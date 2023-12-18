@@ -162,14 +162,19 @@ Functionality:
 
 The JSON response format:
 {{
-    "markdown": <generated-markdown-article>,
-    "refs_used": <list-of-references-used>
+    "markdown": markdown,
+    "refs_used": {{
+        ref_num: ref_rul
+    }}
 }}
 
 Example Response:
 {{
-  "markdown": "# Understanding Photosynthesis\\n\\nPhotosynthesis is a process used by plants to convert light into energy. ![Image of a leaf showing photosynthesis process](image_url) This process is crucial for life on Earth.^[1]\\n\\n## Process Details\\n- Light absorption\\n- Energy conversion\\n- Oxygen production\\n\\nFor more in-depth information, photosynthesis involves...^[2]",
-  "refs_used": ["https://www.photosythesissource.com/article_123", "https://www.biolody.com/article_756"]
+  "markdown": "# Understanding Photosynthesis\\n\\nPhotosynthesis is a process used by plants to convert light into energy. ![Image of a leaf showing photosynthesis process](image_url) This process is crucial for life on Earth.^[7]\\n\\n## Process Details\\n- Light absorption\\n- Energy conversion\\n- Oxygen production\\n\\nFor more in-depth information, photosynthesis involves...^[45]",
+  "refs_used": {{
+        7: "https://www.photosythesissource.com/article_123", 
+        45: "https://www.biolody.com/article_756"
+    }}
 }}
 
 
