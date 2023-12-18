@@ -11,11 +11,12 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Define the 'ask' route
 @app.post("/ask", response_model=QuestionResponse)
@@ -26,9 +27,8 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         experience=request.experience,
         n_pages=request.config.n_pages,
         n_sections=request.config.n_sections,
-        max_tokens=request.config.max_tokens
+        max_tokens=request.config.max_tokens,
     ) as communicator:
-
         await communicator.run()
 
         last_message = communicator.messages[-1]
@@ -38,13 +38,12 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         else:
             md = communicator.messages[-1].content
 
-
         resources = [
             ResourceUsed(
                 url=page.url,
                 sections=page.sections,
                 references=page.references,
-                type=ResourceTypes.WIKIPEDIA
+                type=ResourceTypes.WIKIPEDIA,
             )
             for page in communicator.pages
         ]
@@ -52,13 +51,10 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         print(type(md))
         print(md)
 
-        return QuestionResponse(
-            markdown=md,
-            resources=resources
-        )
-    
+        return QuestionResponse(markdown=md, resources=resources)
 
-@app.post('/test', response_model=QuestionResponse)
+
+@app.post("/test", response_model=QuestionResponse)
 def test(request: QuestionRequest) -> QuestionResponse:
     print(request)
     return QuestionResponse(
@@ -68,12 +64,13 @@ def test(request: QuestionRequest) -> QuestionResponse:
                 url="https://google/com",
                 sections=["only one"],
                 references=["https://bing.com"],
-                type=ResourceTypes.WIKIPEDIA
+                type=ResourceTypes.WIKIPEDIA,
             )
-        ]
+        ],
     )
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, port=8000)

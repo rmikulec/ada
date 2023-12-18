@@ -1,8 +1,13 @@
 import wikipedia
 import re
+import json
+from openai import OpenAI
 from bs4 import BeautifulSoup
 
 from typing import Dict, List
+
+from scixplain import DEFAULT_MODEL
+from scixplain.system_messages import WIKI_SEARCH_TERMS
 
 
 class WikiPage(wikipedia.WikipediaPage):
@@ -80,3 +85,69 @@ class WikiPage(wikipedia.WikipediaPage):
                 sorted({i: self.indexed_refs[i] for i in section_citations}.items())
             ),
         }
+
+    def _to_json(self):
+        data = {
+            "title": self.title,
+            "images": self.image_captions,
+            "sections": list(self.indexed_content.keys()),
+            "url": self.url,
+            "references": {i + 1: ref for i, ref in enumerate(self.references)},
+        }
+
+        return data
+
+
+class WikiSearch:
+    def __init__(self, question, n_pages: int = 1, n_sections: int = 3):
+        self.question = question
+        self.n_pages = n_pages
+        self.n_sections = n_sections
+
+        self.client = OpenAI()
+        self.search_terms = self._get_wiki_search_terms(question=question)
+        self.pages = self._get_pages()
+
+    def _get_wiki_search_terms(self, question):
+        response = self.client.chat.completions.create(
+            model=DEFAULT_MODEL,
+            messages=[
+                {"role": "system", "content": WIKI_SEARCH_TERMS},
+                {"role": "user", "content": question},
+            ],
+            max_tokens=50,
+        )
+
+        message = response.choices[0].message.content
+        return json.loads(message)
+
+    # TODO: Would like to update to do round robin addding.
+    #   So take the first page from each term, then the second
+    #   and so on
+    # For now, just going to limit the terms instead of pages
+    def _get_pages(self):
+        potential_pages = [wikipedia.search(term)[0] for term in self.search_terms]
+
+        potential_pages = list(set(potential_pages))
+        results = potential_pages[0 : self.n_pages]
+        return [WikiPage(title=result) for result in results]
+
+    def get_content(self, route: str):
+        title, section = route.split("/")
+        page = list(filter(lambda p: p.title == title, self.pages))[0]
+        section_content = page.get_section_content(section)
+        section_content["images"] = page.image_captions
+        section_content["title"] = page.title
+        return section_content
+
+    def get_section_enums(self):
+        section_enums = []
+
+        for page in self.pages:
+            sections = list(page.indexed_content.keys())
+            for section in sections:
+                enum = f"{page.title}/{section}"
+                if enum not in section_enums:
+                    section_enums.append(enum)
+
+        return section_enums

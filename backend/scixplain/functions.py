@@ -1,23 +1,22 @@
-WIKI_FUNCTIONS = [
-    {
+from typing import List
+
+
+def get_wiki_function(section_titles: List[str]):
+    return {
         "type": "function",
         "function": {
-            "name": "get_wikipedia_section",
-            "description": "Gets all content from a Wikipedia Section",
+            "name": "get_wikipedia_content",
+            "description": "Gets content from a wikipedia section, including text, images, and any references used.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "title": {
+                    "route": {
                         "type": "string",
-                        "description": "The title of the Wikipedia Page",
-                    },
-                    "section": {
-                        "type": "string",
-                        "description": "The name of the Wikipedia Section",
+                        "description": "the 'title/section' of the wikipedia page to get content from.",
+                        "enum": section_titles,
                     },
                 },
-                "required": ["page", "section"],
+                "required": ["route"],
             },
         },
     }
-]
