@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from scixplain.communicator import AsyncCommunicator as Communicator
+from scixplain.functions import get_wiki_function
+from scixplain.datasources.wiki import WikiSearch
 from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed, ResourceTypes
 
 from uuid import uuid4
@@ -21,14 +23,31 @@ app.add_middleware(
 # Define the 'ask' route
 @app.post("/ask", response_model=QuestionResponse)
 async def ask(request: QuestionRequest) -> QuestionResponse:
+    wiki = WikiSearch(
+        question=request.question, n_pages=request.n_pages, n_sections=request.n_sections
+    )
+
     async with Communicator(
         initial_question=request.question,
         age=request.age,
         experience=request.experience,
-        n_pages=request.config.n_pages,
-        n_sections=request.config.n_sections,
-        max_tokens=request.config.max_tokens,
     ) as communicator:
+        wiki = WikiSearch(
+            question=request.question,
+            n_pages=request.config.n_pages,
+            n_sections=request.config.n_sections,
+        )
+
+        communicator = Communicator(
+            initial_question=request.question, age=request.age, experience=request.experience
+        )
+
+        section_names = await wiki.gaet_section_enums()
+
+        wiki_tool = get_wiki_function(section_titles=section_names)
+
+        communicator.add_tool(tool_spec=wiki_tool, func=wiki.get_content)
+
         await communicator.run()
 
         last_message = communicator.messages[-1]
