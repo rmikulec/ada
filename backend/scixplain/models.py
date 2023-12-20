@@ -6,12 +6,14 @@ from enum import Enum
 
 from scixplain.config import MAX_TOKENS
 
+
 class ResourceTypes(Enum):
-    WIKIPEDIA = 'wiki'
+    WIKIPEDIA = "wiki"
+
 
 class AgeNotValidError(Exception):
     def __init__(self, age) -> None:
-        self.message = f"Provided age: {age} not within valid range: 3-120 years."     
+        self.message = f"Provided age: {age} not within valid range: 3-120 years."
 
 
 class AnswerConfig(BaseModel):
@@ -27,12 +29,12 @@ class QuestionRequest(BaseModel):
     experience: Optional[str] = "None"
     config: Optional[AnswerConfig] = AnswerConfig()
 
-    @validator('age')
+    @validator("age")
     def age_must_be_valid(cls, v):
         if v < 3 and v > 120:
             raise AgeNotValidError(age=v)
         return v
-    
+
 
 class ResourceUsed(BaseModel):
     url: str
@@ -40,7 +42,8 @@ class ResourceUsed(BaseModel):
     references: List[str]
     type: ResourceTypes
 
-    
+
 class QuestionResponse(BaseModel):
     markdown: str
+    references: Dict[int, str]
     resources: List[ResourceUsed]

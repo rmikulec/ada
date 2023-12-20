@@ -1,13 +1,18 @@
 from openai import AsyncOpenAI, OpenAI
+from typing import List
 import json
 import pathlib
-import wikipedia
 import tiktoken
 
 from scixplain import DEFAULT_MODEL
-from scixplain.system_messages import DEFAULT, WIKI_SEARCH_TERMS
-from scixplain.functions import WIKI_FUNCTIONS
-from scixplain.datasources.wiki import WikiPage
+from scixplain.system_messages import BASE_MESSAGE, BASE_MESSAGE_2
+from scixplain.datasources.base import AsyncDatasource
+
+
+class FunctionNameExists(Exception):
+    def __init__(self, func_name):
+        self.message = f"Function '{func_name}' already is added to Communicator"
+        super().__init__(self.message)
 
 
 class Communicator:
@@ -16,10 +21,9 @@ class Communicator:
         initial_question: str,
         age: int,
         experience: str,
-        system_template: str = DEFAULT,
-        max_tokens=300,
-        n_pages: int = 1,
-        n_sections: int = 3,
+        system_template: str = BASE_MESSAGE_2,
+        max_tokens=2_048,
+        n_datasources: int = 3,
     ):
         self.client = OpenAI()
         self.max_tokens = max_tokens
@@ -27,12 +31,10 @@ class Communicator:
         self.initial_question = initial_question
         self.age = age
         self.experience = experience
-        self.pages = self._get_pages(question=initial_question, n_pages=n_pages)
-        self.data = self._create_data()
 
         # Create system message
         self.system_message = system_template.format(
-            data=self.data, age=self.age, experience=self.experience, n_sections=n_sections
+            age=self.age, experience=self.experience, n_datasources=n_datasources
         )
         self.system_message_n_tokens = self._get_num_tokens(self.system_message)
 
@@ -44,65 +46,33 @@ class Communicator:
             {"role": "user", "content": self.initial_question},
         ]
 
-    def _get_wiki_search_terms(self, question):
-        response = self.client.chat.completions.create(
-            model=DEFAULT_MODEL,
-            messages=[
-                {"role": "system", "content": WIKI_SEARCH_TERMS},
-                {"role": "user", "content": question},
-            ],
-            max_tokens=50,
-        )
-
-        message = response.choices[0].message.content
-        return json.loads(message)
-
-    def _get_wikipedia_content(self, title, section):
-        page = list(filter(lambda p: p.title == title, self.pages))[0]
-        section_content = page.get_section_content(section)
-        return json.dumps(section_content, indent=4)
+        self.tools = []
+        self.function_mapping = {}
 
     def _get_num_tokens(self, text):
         encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)
         return len(encoder.encode(text))
 
-    # TODO: Would like to update to do round robin addding.
-    #   So take the first page from each term, then the second
-    #   and so on
-    # For now, just going to limit the terms instead of pages
-    def _get_pages(self, question, n_pages=1):
-        terms = self._get_wiki_search_terms(question)
-        terms = list(set(terms))
-        print(terms)
+    def add_tool(self, tool_spec, func):
+        func_name = tool_spec["function"]["name"]
+        if func_name not in self.function_mapping:
+            self.function_mapping[func_name] = func
+            self.tools.append(tool_spec)
+        else:
+            raise FunctionNameExists(func_name=func_name)
 
-        potential_pages = [wikipedia.search(term)[0] for term in terms]
-
-        potential_pages = list(set(potential_pages))
-        results = potential_pages[0:n_pages]
-        return [WikiPage(title=result) for result in results]
-
-    def _create_data(self):
-        data = []
-
-        for page in self.pages:
-            data.append(
-                {
-                    "title": page.title,
-                    "images": page.image_captions,
-                    "sections": list(page.indexed_content.keys()),
-                    "url": page.url,
-                    # "references": {i+1: ref for i, ref in enumerate(page.references)}
-                }
-            )
-
-        return json.dumps(data, indent=4)
+    def _call_tool(self, tool_name, **kwargs):
+        content = self.function_mapping[tool_name](**kwargs)
+        return json.dumps(content, indent=4)
 
     def _call_openai(self):
         response = self.client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=self.messages,
             max_tokens=self.max_tokens,
-            tools=WIKI_FUNCTIONS,
+            tools=self.tools,
+            tool_choice="auto",
+            response_format={"type": "json_object"},
         )
 
         response_message = response.choices[0].message
@@ -113,10 +83,9 @@ class Communicator:
         if tool_calls:
             for tool_call in tool_calls:
                 func_args = json.loads(tool_call.function.arguments)
-                print(f"Getting section {func_args['section']} from {func_args['title']}")
-                content = self._get_wikipedia_content(
-                    title=func_args["title"], section=func_args["section"]
-                )
+                tool_name = tool_call.function.name
+                print(f"Calling {tool_name} with {func_args}")
+                content = self._call_tool(tool_name=tool_name, **func_args)
                 tool_message = {
                     "role": "tool",
                     "tool_call_id": tool_call.id,
@@ -148,10 +117,9 @@ class AsyncCommunicator:
         initial_question: str,
         age: int,
         experience: str,
-        system_template: str = DEFAULT,
-        max_tokens=300,
-        n_pages: int = 1,
-        n_sections: int = 3,
+        system_template: str = BASE_MESSAGE_2,
+        max_tokens=2_048,
+        datasources: List[AsyncDatasource] = [],
     ):
         self.client = AsyncOpenAI()
         self.max_tokens = max_tokens
@@ -160,17 +128,12 @@ class AsyncCommunicator:
         self.system_template = system_template
         self.age = age
         self.experience = experience
-        self.n_pages = n_pages
-        self.n_sections = n_sections
-        
-
-    async def __aenter__(self):
-        self.pages = await self._get_pages(question=self.initial_question, n_pages=self.n_pages)
-        self.data = self._create_data()
+        self.datasources = datasources
+        self.n_datasources = len(datasources)
 
         # Create system message
-        self.system_message = self.system_template.format(
-            data=self.data, age=self.age, experience=self.experience, n_sections=self.n_sections
+        self.system_message = system_template.format(
+            age=self.age, experience=self.experience, n_datasources=self.n_datasources
         )
         self.system_message_n_tokens = self._get_num_tokens(self.system_message)
 
@@ -182,72 +145,34 @@ class AsyncCommunicator:
             {"role": "user", "content": self.initial_question},
         ]
 
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb):
-        await self.client.close()
-
-    async def _get_wiki_search_terms(self, question):
-        response = await self.client.chat.completions.create(
-            model=DEFAULT_MODEL,
-            messages=[
-                {"role": "system", "content": WIKI_SEARCH_TERMS},
-                {"role": "user", "content": question},
-            ],
-            max_tokens=50,
-        )
-
-        message = response.choices[0].message.content
-        return json.loads(message)
-
-    def _get_wikipedia_content(self, title, section):
-        page = list(filter(lambda p: p.title == title, self.pages))[0]
-        section_content = page.get_section_content(section)
-        return json.dumps(section_content, indent=4)
+        self.tools = []
+        self.function_mapping = {}
 
     def _get_num_tokens(self, text):
         encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)
         return len(encoder.encode(text))
 
-    # TODO: Would like to update to do round robin addding.
-    #   So take the first page from each term, then the second
-    #   and so on
-    # For now, just going to limit the terms instead of pages
-    async def _get_pages(self, question, n_pages=1):
-        terms = await self._get_wiki_search_terms(question)
-        terms = list(set(terms))
-        print(terms)
+    def add_tool(self, tool_spec, func):
+        func_name = tool_spec["function"]["name"]
+        if func_name not in self.function_mapping:
+            self.function_mapping[func_name] = func
+            self.tools.append(tool_spec)
+        else:
+            raise FunctionNameExists(func_name=func_name)
 
-        potential_pages = [wikipedia.search(term)[0] for term in terms]
-
-        potential_pages = list(set(potential_pages))
-        results = potential_pages[0:n_pages]
-        return [WikiPage(title=result) for result in results]
-
-    def _create_data(self):
-        data = []
-
-        for page in self.pages:
-            data.append(
-                {
-                    "title": page.title,
-                    "images": page.image_captions,
-                    "sections": list(page.indexed_content.keys()),
-                    "url": page.url,
-                    # "references": {i+1: ref for i, ref in enumerate(page.references)}
-                }
-            )
-
-        return json.dumps(data, indent=4)
+    def _call_tool(self, tool_name, **kwargs):
+        content = self.function_mapping[tool_name](**kwargs)
+        return json.dumps(content, indent=4)
 
     async def _call_openai(self):
         response = await self.client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=self.messages,
             max_tokens=self.max_tokens,
-            tools=WIKI_FUNCTIONS,
+            tools=self.tools,
+            tool_choice="auto",
+            response_format={"type": "json_object"},
         )
-
         response_message = response.choices[0].message
         tool_calls = response_message.tool_calls
 
@@ -256,10 +181,9 @@ class AsyncCommunicator:
         if tool_calls:
             for tool_call in tool_calls:
                 func_args = json.loads(tool_call.function.arguments)
-                print(f"Getting section {func_args['section']} from {func_args['title']}")
-                content = self._get_wikipedia_content(
-                    title=func_args["title"], section=func_args["section"]
-                )
+                tool_name = tool_call.function.name
+                print(f"Calling {tool_name} with {func_args}")
+                content = self._call_tool(tool_name=tool_name, **func_args)
                 tool_message = {
                     "role": "tool",
                     "tool_call_id": tool_call.id,
@@ -281,5 +205,9 @@ class AsyncCommunicator:
         (root / self.initial_question.lower().replace(" ", "-")).write_text(md)
 
     async def run(self):
+        for datasource in self.datasources:
+            await datasource.set_data()
+            tool_spec = datasource.to_openai_tool()
+            self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+
         await self._call_openai()
-        self._export_results()
