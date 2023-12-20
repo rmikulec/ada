@@ -55,15 +55,21 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         else:
             md = communicator.messages[-1].content
 
-        resources = [
-            ResourceUsed(
-                url=page.url,
-                sections=page.sections,
-                references=page.references,
-                type=ResourceTypes.WIKIPEDIA,
-            )
-            for page in communicator.pages
-        ]
+        resources = []
+
+        for datasource in datasources:
+            if type(datasource) == WikiSearch:
+                resources.extend(
+                    [
+                        ResourceUsed(
+                            url=page.url,
+                            sections=page.sections,
+                            references=page.references,
+                            type=ResourceTypes.WIKIPEDIA,
+                        )
+                        for page in datasources.pages
+                    ]
+                )
 
         print(type(md))
         print(md)
