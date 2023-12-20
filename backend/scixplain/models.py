@@ -45,4 +45,5 @@ class ResourceUsed(BaseModel):
 
 class QuestionResponse(BaseModel):
     markdown: str
+    references: Dict[int, str]
     resources: List[ResourceUsed]
