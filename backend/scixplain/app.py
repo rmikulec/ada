@@ -32,21 +32,19 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         age=request.age,
         experience=request.experience,
     ) as communicator:
-        wiki = WikiSearch(
-            question=request.question,
-            n_pages=request.config.n_pages,
-            n_sections=request.config.n_sections,
-        )
-
+        datasources = [
+            WikiSearch(
+                question=request.question,
+                n_pages=request.config.n_pages,
+                n_sections=request.config.n_sections,
+            )
+        ]
         communicator = Communicator(
-            initial_question=request.question, age=request.age, experience=request.experience
+            initial_question=request.question,
+            age=request.age,
+            experience=request.experience,
+            datasources=datasources,
         )
-
-        section_names = await wiki.gaet_section_enums()
-
-        wiki_tool = get_wiki_function(section_titles=section_names)
-
-        communicator.add_tool(tool_spec=wiki_tool, func=wiki.get_content)
 
         await communicator.run()
 
