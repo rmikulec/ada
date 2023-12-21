@@ -162,7 +162,7 @@ class AsyncCommunicator:
 
     def _call_tool(self, tool_name, **kwargs):
         content = self.function_mapping[tool_name](**kwargs)
-        return json.dumps(content, indent=4)
+        return json.dumps(content)
 
     async def _call_openai(self):
         response = await self.client.chat.completions.create(

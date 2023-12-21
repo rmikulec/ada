@@ -75,7 +75,7 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
                     ResourceUsed(
                         url=paper.title,
                         sections=paper.categories,
-                        references=paper.links,
+                        references=[link.href for link in paper.links],
                         type=ResourceTypes.ARXIV,
                     )
                     for paper in datasource.papers

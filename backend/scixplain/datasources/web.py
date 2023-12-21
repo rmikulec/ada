@@ -55,7 +55,7 @@ class AsyncWebSearch(AsyncDatasource):
             async with session.get(
                 url="https://www.googleapis.com/customsearch/v1",
                 params={
-                    "key": os.environ['GOOGLE_KEY'],
+                    "key": os.environ["GOOGLE_KEY"],
                     "cx": self.engine.value,
                     "q": self.question,
                     "count": self.n_articles,
