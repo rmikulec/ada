@@ -22,7 +22,7 @@ class Communicator:
         age: int,
         experience: str,
         system_template: str = BASE_MESSAGE_2,
-        max_tokens=2_048,
+        max_tokens=4_096,
         n_datasources: int = 3,
     ):
         self.client = OpenAI()
@@ -63,7 +63,7 @@ class Communicator:
 
     def _call_tool(self, tool_name, **kwargs):
         content = self.function_mapping[tool_name](**kwargs)
-        return json.dumps(content, indent=4)
+        return json.dumps(content)
 
     def _call_openai(self):
         response = self.client.chat.completions.create(
