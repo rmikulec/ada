@@ -6,7 +6,7 @@ import tiktoken
 
 from scixplain import DEFAULT_MODEL
 from scixplain.system_messages import BASE_MESSAGE, BASE_MESSAGE_2
-from scixplain.datasources.base import AsyncDatasource
+from scixplain.datasources.base import AsyncDatasource, Datasource
 
 
 class FunctionNameExists(Exception):
@@ -205,9 +205,14 @@ class AsyncCommunicator:
         (root / self.initial_question.lower().replace(" ", "-")).write_text(md)
 
     async def run(self):
+
         for datasource in self.datasources:
-            await datasource.set_data()
-            tool_spec = datasource.to_openai_tool()
-            self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+            if isinstance(datasource, AsyncDatasource):
+                await datasource.set_data()
+                tool_spec = datasource.to_openai_tool()
+                self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+            elif isinstance(datasource, Datasource):
+                tool_spec = datasource.to_openai_tool()
+                self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
 
         await self._call_openai()
