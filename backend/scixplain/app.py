@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from scixplain.communicator import AsyncCommunicator as Communicator
 from scixplain.datasources.wiki import AsyncWikiSearch as WikiSearch
+from scixplain.datasources.web import AsyncWebSearch as WebSearch
 from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed, ResourceTypes
 
 from uuid import uuid4
@@ -28,7 +29,8 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
             question=request.question,
             n_pages=request.config.n_pages,
             n_sections=request.config.n_sections,
-        )
+        ),
+        WebSearch(question=request.question, n_articles=request.config.n_pages),
     ]
     communicator = Communicator(
         initial_question=request.question,
