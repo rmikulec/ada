@@ -13,3 +13,13 @@ class AsyncDatasource(ABC):
     @abstractmethod
     def get_data():
         pass
+
+
+class Datasource(ABC):
+    @abstractmethod
+    def to_openai_tool():
+        pass
+
+    @abstractmethod
+    def get_data():
+        pass

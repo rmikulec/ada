@@ -9,6 +9,7 @@ from scixplain.config import MAX_TOKENS
 
 class ResourceTypes(Enum):
     WIKIPEDIA = "wiki"
+    ARXIV = "arxiv"
 
 
 class AgeNotValidError(Exception):
