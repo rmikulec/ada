@@ -35,10 +35,8 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         ArxivSearch(
             question=request.question,
             n_pages=request.config.n_pages,
-        )
+        ),
     ]
-
-    print(datasources[1].papers)
 
     communicator = Communicator(
         initial_question=request.question,
@@ -78,7 +76,7 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
                         url=paper.title,
                         sections=paper.categories,
                         references=paper.links,
-                        type=ResourceTypes.ARXIV
+                        type=ResourceTypes.ARXIV,
                     )
                     for paper in datasource.papers
                 ]

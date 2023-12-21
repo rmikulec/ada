@@ -205,7 +205,6 @@ class AsyncCommunicator:
         (root / self.initial_question.lower().replace(" ", "-")).write_text(md)
 
     async def run(self):
-
         for datasource in self.datasources:
             if isinstance(datasource, AsyncDatasource):
                 await datasource.set_data()
