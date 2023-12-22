@@ -5,6 +5,8 @@ from enum import Enum
 from typing import List
 import json
 import os
+import difflib
+import requests
 
 import newspaper
 
@@ -28,7 +30,16 @@ class WebSearchArticle:
 
     def _parse(self):
         article = newspaper.Article(url=self.url, language="en")
-        article.download()
+        try:
+            article.download()
+        except newspaper.ArticleException:
+            html = requests.get(
+                url=self.url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+                },
+            )
+            article.download(input_html=html)
         article.parse()
 
         self.text = (str(article.text),)
@@ -63,14 +74,35 @@ class AsyncWebSearch(AsyncDatasource):
             ) as res:
                 return json.loads(await res.text())
 
+    async def _test_url(self, url: str):
+        """
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get(url=url) as res:
+                    await res.text()
+                    return res.status not in [200, 201, 202, 203]
+            except:
+                return False
+        """
+        try:
+            print(f"testing {url}")
+            res = requests.get(url)
+            return res.status_code not in [200, 201, 202, 203]
+        except:
+            return False
+
     async def set_data(self):
         search_results = await self._search()
+        search_results = [
+            result for result in search_results["items"] if await self._test_url(result["link"])
+        ]
 
-        for result in search_results["items"]:
+        for result in search_results:
             self.articles.append(WebSearchArticle(url=result["link"], title=result["title"]))
 
     def get_data(self, title: str):
-        article = list(filter(lambda a: a.title == title, self.articles))[0]
+        closest_title = difflib.get_close_matches(title, [a.title for a in self.articles])[0]
+        article = list(filter(lambda a: a.title == closest_title, self.articles))[0]
         article._parse()
         return article.export()
 
@@ -85,11 +117,11 @@ class AsyncWebSearch(AsyncDatasource):
                     "properties": {
                         "title": {
                             "type": "string",
-                            "description": "The title of the article from the google search",
+                            "description": "The title of the article to get from",
                             "enum": [article.title for article in self.articles],
                         },
                     },
-                    "required": ["route"],
+                    "required": ["title"],
                 },
             },
         }

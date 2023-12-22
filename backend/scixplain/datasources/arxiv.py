@@ -43,7 +43,7 @@ class ArxivSearch(AsyncDatasource):
     def get_data(self, paper_title: str):
         paper = list(filter(lambda p: p.title == paper_title, self.papers))[0]
 
-        return self._read_pdf(paper)
+        return {"text": self._read_pdf(paper)}
 
     def to_openai_tool(self):
         return {
@@ -56,11 +56,11 @@ class ArxivSearch(AsyncDatasource):
                     "properties": {
                         "paper_title": {
                             "type": "string",
-                            "description": "the 'title of the research paper",
+                            "description": "the title of the research paper to get",
                             "enum": [paper.title for paper in self.papers],
                         }
                     },
-                    "required": ["route"],
+                    "required": ["paper_title"],
                 },
             },
         }
