@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 from typing import Dict, List
 
-from scixplain.datasources.base import AsyncDataSource
+from scixplain.datasources.base import AsyncDatasource
 from scixplain.datasources.engines import SearchEngines
 
 
@@ -96,7 +96,7 @@ class WikiPage(wikipedia.WikipediaPage):
         return data
 
 
-class AsyncWikiSearch(AsyncDataSource):
+class AsyncWikiSearch(AsyncDatasource):
     def __init__(self, search_terms: List[str], max_results: int = 10):
         super().__init__(
             name="Wikipedia Search",

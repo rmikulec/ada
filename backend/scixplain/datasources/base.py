@@ -20,7 +20,7 @@ class SearchNotRun(Exception):
         super().__init__(self.message)
 
 
-class AsyncDataSource:
+class AsyncDatasource:
     def __init__(
         self,
         name: str,
@@ -77,7 +77,7 @@ class AsyncDataSource:
         pass
 
 
-class AsyncWebSource(AsyncDataSource, ABC):
+class AsyncWebSource(AsyncDatasource, ABC):
     def __init__(
         self,
         name: str,
