@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Dict, List
 
 import requests
 
@@ -177,3 +177,10 @@ class AsyncWebSource(AsyncDatasource, ABC):
 
     async def _search(self):
         await asyncio.gather(*[self._search_per_term(term) for term in self.search_terms])
+
+
+class DatasourceReturn:
+    def __init__(self, text: str, references: List[str], images: Dict[str, str]):
+        self.text = text
+        self.references = references
+        self.images = images

@@ -4,6 +4,7 @@ import json
 import pathlib
 import logging
 import pathlib
+import asyncio
 import tiktoken
 import traceback
 
@@ -35,7 +36,7 @@ class AsyncCommunicator:
         system_template: str = BASE_MESSAGE_2,
         max_tokens=2_048,
         datasources: List[DatasourceEngines] = [],
-        min_articles: int = 3
+        min_articles: int = 3,
     ):
         self.client = AsyncOpenAI()
         self.max_tokens = max_tokens
@@ -62,6 +63,9 @@ class AsyncCommunicator:
         self.tools = []
         self.function_mapping = {}
 
+    def _add_question(self, question: str):
+        self.messages.append({"role": "user", "content": question})
+
     async def _get_search_terms(self, question: str):
         response = await self.client.chat.completions.create(
             model=DEFAULT_MODEL,
@@ -77,17 +81,24 @@ class AsyncCommunicator:
 
     async def _set_tools(self, datasources: List[AsyncDatasource]):
         try:
+            async_operations = []
             for datasource in datasources:
                 if isinstance(datasource, AsyncDatasource):
-                    await datasource.search()
+                    async_operations.append(datasource.search)
                 elif isinstance(datasource, Datasource):
                     datasource.search()
                 else:
                     raise InvalidDatasourceType(ds_type=type(datasource), name=datasource.name)
                 self.tools.append(datasource.tool_spec)
                 self.function_mapping[datasource.name] = datasource.get_content
+            await asyncio.gather(*async_operations)
         except Exception as err:
             logger.error(f"Tool {datasource.name} not added: \n {traceback.format_exc()}")
+            if datasource.name in self.function_mapping:
+                del self.function_mapping[datasource.name]
+                self.tools = list(
+                    filter(lambda spec: spec["function"]["name"] != datasource.name, self.tools)
+                )
 
     def _get_num_tokens(self, text):
         encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)
@@ -149,8 +160,11 @@ class AsyncCommunicator:
 
     async def ask(self, question: str, export_path: Union[pathlib.Path, str] = None):
         logger.info(f"Question asked: {question}")
+        self._add_question(question=question)
         terms = await self._get_search_terms(question=question)
         logger.info(f"Search terms: {terms}")
+        # Search with the question as well
+        terms.append(question)
         logger.info("Setting up tools")
         datasources = [datasource.value(search_terms=terms) for datasource in self.datasources]
         await self._set_tools(datasources=datasources)
