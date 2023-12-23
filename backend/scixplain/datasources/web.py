@@ -1,5 +1,6 @@
 from scixplain.datasources.base import AsyncDatasource
 import aiohttp
+import logging
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
@@ -9,6 +10,9 @@ import difflib
 import requests
 
 import newspaper
+
+
+logger = logging.getLogger(__name__)
 
 
 class SearchEngines(Enum):
@@ -85,11 +89,18 @@ class AsyncWebSearch(AsyncDatasource):
                 return False
         """
         try:
-            print(f"testing {url}")
+            logger.debug(f"Testing {url}...")
             res = requests.get(url)
-            return res.status_code not in [200, 201, 202, 203]
+            return res.status_code in [200, 201, 202, 203]
         except:
             return False
+
+    def _fix_http(self, url: str):
+        if url[0:6] == "http:":
+            url.removeprefix("http:")
+            return "https:" + url
+        else:
+            return url
 
     async def set_data(self):
         search_results = await self._search()
@@ -98,7 +109,8 @@ class AsyncWebSearch(AsyncDatasource):
         ]
 
         for result in search_results:
-            self.articles.append(WebSearchArticle(url=result["link"], title=result["title"]))
+            url = self._fix_http(result["link"])
+            self.articles.append(WebSearchArticle(url=url, title=result["title"]))
 
     def get_data(self, title: str):
         closest_title = difflib.get_close_matches(title, [a.title for a in self.articles])[0]

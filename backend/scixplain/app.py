@@ -1,4 +1,6 @@
 import json
+import logging
+import logging.config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,6 +11,10 @@ from scixplain.datasources.arxiv import ArxivSearch
 from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed, ResourceTypes
 
 from uuid import uuid4
+
+# Setup logger
+logging.config.fileConfig("./scixplain/logging.conf", disable_existing_loggers=False)
+logger = logging.getLogger(__name__)
 
 # Create an instance of the FastAPI class
 app = FastAPI()

@@ -1,12 +1,16 @@
 from openai import AsyncOpenAI, OpenAI
 from typing import List
 import json
+import logging
 import pathlib
 import tiktoken
 
 from scixplain import DEFAULT_MODEL
 from scixplain.system_messages import BASE_MESSAGE, BASE_MESSAGE_2
 from scixplain.datasources.base import AsyncDatasource, Datasource
+
+
+logger = logging.getLogger(__name__)
 
 
 class FunctionNameExists(Exception):
@@ -84,7 +88,7 @@ class Communicator:
             for tool_call in tool_calls:
                 func_args = json.loads(tool_call.function.arguments)
                 tool_name = tool_call.function.name
-                print(f"Calling {tool_name} with {func_args}")
+                logger.info(f"Calling {tool_name} with {func_args}")
                 content = self._call_tool(tool_name=tool_name, **func_args)
                 tool_message = {
                     "role": "tool",
@@ -182,7 +186,7 @@ class AsyncCommunicator:
             for tool_call in tool_calls:
                 func_args = json.loads(tool_call.function.arguments)
                 tool_name = tool_call.function.name
-                print(f"Calling {tool_name} with {func_args}")
+                logger.info(f"Calling {tool_name} with {func_args}")
                 content = self._call_tool(tool_name=tool_name, **func_args)
                 tool_message = {
                     "role": "tool",
@@ -209,9 +213,12 @@ class AsyncCommunicator:
             if isinstance(datasource, AsyncDatasource):
                 await datasource.set_data()
                 tool_spec = datasource.to_openai_tool()
-                self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+                if tool_spec is not None:
+                    self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
             elif isinstance(datasource, Datasource):
                 tool_spec = datasource.to_openai_tool()
-                self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+                if tool_spec is not None:
+                    self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
 
+        logger.info("Tools:" + json.dumps(self.tools, indent=4))
         await self._call_openai()
