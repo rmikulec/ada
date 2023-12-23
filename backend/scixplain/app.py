@@ -46,6 +46,8 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
 
     resources = []
 
+    logger.info(content)
+
     return QuestionResponse(
         markdown=content["markdown"], references=content["refs_used"], resources=resources
     )

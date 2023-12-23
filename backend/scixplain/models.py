@@ -25,14 +25,15 @@ class AnswerConfig(BaseModel):
         DatasourceConfig(type=DatasourceEngines.GENERAL),
         DatasourceConfig(type=DatasourceEngines.ARXIV),
         DatasourceConfig(type=DatasourceEngines.WIKI),
+        DatasourceConfig(type=DatasourceEngines.IMAGE),
     ]
 
 
 class QuestionRequest(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     question: str
-    age: Optional[int] = 18
-    experience: Optional[str] = "None"
+    age: Optional[int] = 25
+    experience: Optional[str] = "Average American"
     config: Optional[AnswerConfig] = AnswerConfig()
 
     @validator("age")

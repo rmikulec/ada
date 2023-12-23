@@ -1,12 +1,8 @@
 from scixplain.datasources.base import AsyncWebSource
 from scixplain.datasources.search_engines import SearchEngines
-import aiohttp
 import logging
 from dataclasses import dataclass
-from enum import Enum
 from typing import List
-import json
-import os
 import difflib
 import requests
 
@@ -23,8 +19,6 @@ class WebSearchArticle:
     text: str = None
     authors: List[str] = None
     published_date: str = None
-    top_image: str = None
-    images: List[str] = None
     keywords: List[str] = None
     summary: str = None
 
@@ -42,16 +36,14 @@ class WebSearchArticle:
             article.download(input_html=html)
         article.parse()
 
-        self.text = (str(article.text),)
-        self.authors = (article.authors,)
-        self.published_date = (str(article.publish_date),)
-        self.top_image = (str(article.top_image),)
-        self.images = list(article.images)
-        self.keywords = (article.keywords,)
+        self.text = str(article.text)
+        self.authors = article.authors
+        self.published_date = str(article.publish_date)
+        self.keywords = article.keywords
         self.summary = str(article.summary)
 
     def export(self):
-        return {"text": self.text, "authors": self.authors, "images": self.images}
+        return {"text": self.text, "authors": self.authors}
 
 
 class GeneralSearch(AsyncWebSource):

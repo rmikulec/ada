@@ -139,6 +139,7 @@ class AsyncWebSource(AsyncDatasource, ABC):
         search_terms: List[str],
         engine: SearchEngines,
         max_results: int = 3,
+        is_image: bool = False,
     ):
         super().__init__(
             name=name,
@@ -149,16 +150,19 @@ class AsyncWebSource(AsyncDatasource, ABC):
         )
 
         self.engine = engine
+        self.is_image = is_image
 
     async def _search_per_term(self, term: str, session: aiohttp.ClientSession):
+        params = {
+            "key": os.environ["GOOGLE_KEY"],
+            "cx": self.engine.value,
+            "q": term,
+            "count": self.max_results,
+        }
+        if self.is_image:
+            params["searchType"] = "image"
         async with session.get(
-            url="https://www.googleapis.com/customsearch/v1",
-            params={
-                "key": os.environ["GOOGLE_KEY"],
-                "cx": self.engine.value,
-                "q": term,
-                "count": self.max_results,
-            },
+            url="https://www.googleapis.com/customsearch/v1", params=params
         ) as res:
             results = json.loads(await res.text())
             if "items" in results:

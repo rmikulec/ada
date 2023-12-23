@@ -89,7 +89,6 @@ class WikiPage(wikipedia.WikipediaPage):
     def _to_json(self):
         data = {
             "title": self.title,
-            "images": self.image_captions,
             "sections": list(self.indexed_content.keys()),
             "url": self.url,
             "references": {i + 1: ref for i, ref in enumerate(self.references)},
