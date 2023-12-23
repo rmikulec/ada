@@ -49,7 +49,7 @@ class ArxivSearch(AsyncWebSource):
             search = arxiv.Search(id_list=result_ids)
             self.papers.extend([paper for paper in client.results(search=search)])
         except arxiv.ArxivError:
-            titles = [result["metadata"]["citation_title"] for result in self.results]
+            titles = [result["pagemap"]["metatags"][0]["citation_title"] for result in self.results]
             for title in titles:
                 search = arxiv.Search(query=title)
                 self.papers.append([paper for paper in client.results(search=search)][0])
