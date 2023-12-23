@@ -25,6 +25,7 @@ class AnswerConfig(BaseModel):
         DatasourceConfig(type=DatasourceEngines.GENERAL),
         DatasourceConfig(type=DatasourceEngines.ARXIV),
         DatasourceConfig(type=DatasourceEngines.WIKI),
+        DatasourceConfig(type=DatasourceEngines.IMAGE),
     ]
 
 

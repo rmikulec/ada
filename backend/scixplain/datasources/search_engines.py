@@ -5,3 +5,4 @@ class SearchEngines(Enum):
     GENERAL = "950f3256407244f28"
     ARXIVE = "a06016d8e362843b8"
     WIKI = "746a8afb89774424e"
+    IMAGE = "019e02d28078a4fa6"
