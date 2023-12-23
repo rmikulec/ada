@@ -37,6 +37,7 @@ class AsyncCommunicator:
         max_tokens=2_048,
         datasources: List[DatasourceEngines] = [],
         min_articles: int = 3,
+        n_search_terms: int = 3,
     ):
         self.client = AsyncOpenAI()
         self.max_tokens = max_tokens
@@ -45,6 +46,7 @@ class AsyncCommunicator:
         self.age = age
         self.experience = experience
         self.datasources = datasources
+        self.n_search_terms = n_search_terms
         self.n_datasources = len(datasources)
 
         # Create system message
@@ -77,7 +79,7 @@ class AsyncCommunicator:
         )
 
         message = response.choices[0].message.content
-        return json.loads(message)
+        return json.loads(message)[: self.n_search_terms]
 
     async def _set_tools(self, datasources: List[AsyncDatasource]):
         async_operations = [

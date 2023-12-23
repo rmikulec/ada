@@ -16,7 +16,7 @@ class ArxivSearch(AsyncWebSource):
     def __init__(
         self,
         search_terms: List[str],
-        max_results: int = 5,
+        max_results: int = 3,
         criterion: arxiv.SortCriterion = arxiv.SortCriterion.Relevance,
     ):
         super().__init__(
@@ -28,7 +28,7 @@ class ArxivSearch(AsyncWebSource):
             engine=SearchEngines.ARXIVE,
         )
         self.sort_criterion = criterion
-        self.papers = []
+        self.papers = {}
 
     def _read_pdf(self, paper: arxiv.Result):
         with TemporaryDirectory() as temp_dir:
@@ -40,28 +40,22 @@ class ArxivSearch(AsyncWebSource):
             return {i: page.extract_text() for i, page in enumerate(reader.pages)}
 
     def _get_resource_values(self):
-        return [paper.title for paper in self.papers]
+        return list(self.papers.keys())
 
     async def search(self):
         logger.info("Searching the arXiv...")
         await self._search()
-        client = arxiv.Client()
-        try:
-            result_ids = [
-                result["pagemap"]["metatags"][0]["citation_arxiv_id"] for result in self.results
+        self.papers = {
+            result["pagemap"]["metatags"][0]["citation_title"]: result["pagemap"]["metatags"][0][
+                "citation_arxiv_id"
             ]
-            search = arxiv.Search(id_list=result_ids)
-            papers = [paper for paper in client.results(search=search)]
-            self.papers.extend(papers)
-        except arxiv.ArxivError:
-            titles = [
-                result["pagemap"]["metatags"][0]["citation_title"] for result in self.results
-            ]
-            for title in titles:
-                search = arxiv.Search(query=title)
-                self.papers.append([paper for paper in client.results(search=search)][0])
+            for result in self.results
+        }
 
     def get_content(self, resource: str) -> dict:
-        paper = list(filter(lambda p: p.title == resource, self.papers))[0]
+        client = arxiv.Client()
+        paper_id = self.papers[resource]
+        search = arxiv.Search(id_list=[paper_id])
+        paper = [paper for paper in client.results(search=search)][0]
 
         return {"text": self._read_pdf(paper)}

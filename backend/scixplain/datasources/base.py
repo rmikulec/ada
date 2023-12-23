@@ -138,7 +138,7 @@ class AsyncWebSource(AsyncDatasource, ABC):
         resource_description: str,
         search_terms: List[str],
         engine: SearchEngines,
-        max_results: int = 10,
+        max_results: int = 5,
     ):
         super().__init__(
             name=name,
