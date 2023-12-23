@@ -1,14 +1,13 @@
 import wikipedia
+import logging
 import re
-import json
-from openai import OpenAI, AsyncOpenAI
 from bs4 import BeautifulSoup
 
 from typing import Dict, List
 
-from scixplain import DEFAULT_MODEL
-from scixplain.system_messages import WIKI_SEARCH_TERMS
-from scixplain.datasources.base import AsyncDatasource
+from scixplain.datasources.base import Datasource
+
+logger = logging.getLogger(__name__)
 
 
 class WikiPage(wikipedia.WikipediaPage):
@@ -99,49 +98,25 @@ class WikiPage(wikipedia.WikipediaPage):
         return data
 
 
-class WikiSearch:
-    def __init__(self, question, n_pages: int = 1, n_sections: int = 3):
-        self.question = question
-        self.n_pages = n_pages
-        self.n_sections = n_sections
-
-        self.client = OpenAI()
-        self.search_terms = self._get_wiki_search_terms(question=question)
-        self.pages = self._get_pages()
-
-    def _get_wiki_search_terms(self, question):
-        response = self.client.chat.completions.create(
-            model=DEFAULT_MODEL,
-            messages=[
-                {"role": "system", "content": WIKI_SEARCH_TERMS},
-                {"role": "user", "content": question},
-            ],
-            max_tokens=50,
+class WikiSearch(Datasource):
+    def __init__(self, search_terms: List[str], max_results: int = 10):
+        super().__init__(
+            name="wikipedia_search",
+            description="Retrieve sections of articles from wikipedia.",
+            resource_description="The {page}/{section} wiki section to retrieve content from.",
+            search_terms=search_terms,
+            max_results=max_results,
         )
 
-        message = response.choices[0].message.content
-        return json.loads(message)
+        self.pages = []
 
-    # TODO: Would like to update to do round robin addding.
-    #   So take the first page from each term, then the second
-    #   and so on
-    # For now, just going to limit the terms instead of pages
-    def _get_pages(self):
+    def _search(self):
         potential_pages = [wikipedia.search(term)[0] for term in self.search_terms]
 
         potential_pages = list(set(potential_pages))
-        results = potential_pages[0 : self.n_pages]
-        return [WikiPage(title=result) for result in results]
+        self.results.extend(potential_pages[0 : self.max_results])
 
-    def get_content(self, route: str):
-        title, section = route.split("/")
-        page = list(filter(lambda p: p.title == title, self.pages))[0]
-        section_content = page.get_section_content(section)
-        section_content["images"] = page.image_captions
-        section_content["title"] = page.title
-        return section_content
-
-    def get_section_enums(self):
+    def _get_resource_values(self):
         section_enums = []
 
         for page in self.pages:
@@ -153,86 +128,15 @@ class WikiSearch:
 
         return section_enums
 
+    def search(self):
+        logger.info("Searching Wiki....")
+        self._search()
+        self.pages.extend([WikiPage(title=title) for title in self.results])
 
-class AsyncWikiSearch(AsyncDatasource):
-    def __init__(self, question, n_pages: int = 1, n_sections: int = 3):
-        self.question = question
-        self.n_pages = n_pages
-        self.n_sections = n_sections
-
-        self.client = AsyncOpenAI()
-
-    async def _get_wiki_search_terms(self, question):
-        response = await self.client.chat.completions.create(
-            model=DEFAULT_MODEL,
-            messages=[
-                {"role": "system", "content": WIKI_SEARCH_TERMS},
-                {"role": "user", "content": question},
-            ],
-            max_tokens=50,
-        )
-
-        message = response.choices[0].message.content
-
-        try:
-            return json.loads(message)
-        except json.JSONDecodeError:
-            return []
-
-    # TODO: Would like to update to do round robin addding.
-    #   So take the first page from each term, then the second
-    #   and so on
-    # For now, just going to limit the terms instead of pages
-    async def set_data(self):
-        potential_pages = [
-            wikipedia.search(term)[0]
-            for term in await self._get_wiki_search_terms(question=self.question)
-        ]
-
-        potential_pages = list(set(potential_pages))
-        results = potential_pages[0 : self.n_pages]
-        self.pages = [WikiPage(title=result) for result in results]
-
-    def get_data(self, route: str):
-        title, section = route.split("/")
+    def get_content(self, resource: str):
+        title, section = resource.split("/")
         page = list(filter(lambda p: p.title == title, self.pages))[0]
         section_content = page.get_section_content(section)
         section_content["images"] = page.image_captions
         section_content["title"] = page.title
         return section_content
-
-    def _get_section_enums(self):
-        section_enums = []
-
-        for page in self.pages:
-            sections = list(page.indexed_content.keys())
-            for section in sections:
-                enum = f"{page.title}/{section}"
-                if enum not in section_enums:
-                    section_enums.append(enum)
-
-        return section_enums
-
-    def to_openai_tool(self):
-        sections = self._get_section_enums()
-        if len(sections) == 0:
-            return None
-        else:
-            return {
-                "type": "function",
-                "function": {
-                    "name": "get_wikipedia_content",
-                    "description": "Gets content from a wikipedia section, including text, images, and any references used.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "route": {
-                                "type": "string",
-                                "description": "the 'title/section' of the wikipedia page to get content from.",
-                                "enum": self._get_section_enums(),
-                            },
-                        },
-                        "required": ["route"],
-                    },
-                },
-            }

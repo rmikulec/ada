@@ -5,11 +5,7 @@ from uuid import UUID, uuid4
 from enum import Enum
 
 from scixplain.config import MAX_TOKENS
-
-
-class ResourceTypes(Enum):
-    WIKIPEDIA = "wiki"
-    ARXIV = "arxiv"
+from scixplain.datasources.ds_engines import DatasourceEngines
 
 
 class AgeNotValidError(Exception):
@@ -17,10 +13,19 @@ class AgeNotValidError(Exception):
         self.message = f"Provided age: {age} not within valid range: 3-120 years."
 
 
+class DatasourceConfig(BaseModel):
+    type: DatasourceEngines
+    parameters: Optional[dict] = None
+
+
 class AnswerConfig(BaseModel):
     max_tokens: Optional[int] = MAX_TOKENS
-    n_pages: Optional[int] = 2
-    n_sections: Optional[int] = 3
+    max_results: Optional[int] = 5
+    datasources: List[DatasourceConfig] = [
+        DatasourceConfig(type=DatasourceEngines.GENERAL),
+        DatasourceConfig(type=DatasourceEngines.ARXIV),
+        DatasourceConfig(type=DatasourceEngines.WIKI),
+    ]
 
 
 class QuestionRequest(BaseModel):
@@ -39,9 +44,8 @@ class QuestionRequest(BaseModel):
 
 class ResourceUsed(BaseModel):
     url: str
-    sections: List[str]
-    references: List[str]
-    type: ResourceTypes
+    references: List[str] = []
+    type: DatasourceEngines
 
 
 class QuestionResponse(BaseModel):

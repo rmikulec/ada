@@ -59,8 +59,8 @@ The Wikipedia data is provided below ({n_sections} sections and their content mu
 The user is {age} years old and has the experience of {experience}, so answer the question with this context.
 """
 
-WIKI_SEARCH_TERMS = """
-You are an AI Assistant that recieves a question and must return a list of potential search terms for wikipedia.
+SEARCH_TERMS = """
+You are an AI Assistant that recieves a question and must return a list of potential search terms to use on web searches.
 
 For example, someone might ask "Did humans cause climate change?"
 and you would return:
@@ -81,8 +81,7 @@ which you may return something like:
     "human evolution",
 ]
 
-These questions can be anything. Be sure to adapt the terms to what the question is. If you know of
-any specific wikipedia pages that are relevant to the question, those will be accepted as well.
+These questions can be anything. Be sure to adapt the terms to what the question is.
 
 Please only return answers in a python list format. Return at most 5 terms.
 
@@ -150,13 +149,13 @@ Utilizes OpenAI tools for sourcing data and incorporates images to enhance under
 Parameters:
 - age (int): The age of the user requesting the information.
 - experience (str): The user's level of education or relevant job experience.
-- n_datasources (int): The least number of datasources you should use to answer the question.
+- n_resources (int): The least number of resources you should use. These can be all from one datasouce, or picked from many. 
 
 Functionality:
 1. The system will analyze the user's age and experience to tailor the complexity and depth of the scientific explanation.
 2. The generate response must be an markdown article.
 3. The markdown article will include appropriate headers, images, and other markdown elements to effectively convey the scientific topic in an engaging and educational manner, tailored to the user's age and experience level.
-4. It will use the specified number of datasources to gather relevant information. Datasources are called using tools. These datasources will provide both textual references and image URLs with descriptions.
+4. It will use the specified number of datasources to gather relevant information. Datasources are called using tools. These datasources will provide both textual references and image URLs with descriptions. Please use the right datasource for the question.
 5. In the generated markdown article, references from datasources will be cited appropriately using a numerical system (e.g., ^[0]) next to the relevant content. The number should match the index of what reference was used in the given references dictionary from the datasource.
 6. The response will be structured in JSON format, containing two fields: 'markdown' for the article and 'refs_used' for the list of references used.
 
@@ -180,5 +179,5 @@ Example Response:
 
 The user is {age} years old.
 The user's experience is {experience}
-You must use at least {n_datasources} to answer the queston
+You must use at least {min_resources} articles to answer the queston
 """
