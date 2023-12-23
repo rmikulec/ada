@@ -8,8 +8,8 @@ import tiktoken
 
 from scixplain import DEFAULT_MODEL
 from scixplain.system_messages import BASE_MESSAGE_2, SEARCH_TERMS
-from scixplain.datasources.engines import DatasourceEngines
-from scixplain.datasources.base import AsyncDatasource
+from scixplain.datasources.ds_engines import DatasourceEngines
+from scixplain.datasources.base import AsyncDatasource, Datasource
 
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,11 @@ class FunctionNameExists(Exception):
     def __init__(self, func_name):
         self.message = f"Function '{func_name}' already is added to Communicator"
         super().__init__(self.message)
+
+
+class InvalidDatasourceType(Exception):
+    def __init__(self, ds_type, name):
+        self.message = f"Datasource {name} is of invalid type {ds_type}. Please extend either AsyncDatasource or Datasource"
 
 
 class AsyncCommunicator:
@@ -56,7 +61,7 @@ class AsyncCommunicator:
         self.function_mapping = {}
 
     async def _get_search_terms(self, question: str):
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=[
                 {"role": "system", "content": SEARCH_TERMS},
@@ -71,11 +76,18 @@ class AsyncCommunicator:
     async def _set_tools(self, datasources: List[AsyncDatasource]):
         try:
             for datasource in datasources:
-                await datasource.search()
+                if type(datasource) == AsyncDatasource:
+                    await datasource.search()
+                elif type(datasource) == Datasource:
+                    datasource.search()
+                else:
+                    raise InvalidDatasourceType(ds_type=type(datasource), name=datasource.name)
                 self.tools.append(datasource.tool_spec)
                 self.function_mapping[datasource.name] = datasource.get_content
         except Exception as err:
             logger.error(f"Tool {datasource.name} not added: \n {str(err)}")
+
+        print(self.tools)
 
     def _get_num_tokens(self, text):
         encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)

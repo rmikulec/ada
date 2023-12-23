@@ -1,5 +1,5 @@
 from scixplain.datasources.base import AsyncWebSource
-from scixplain.datasources.engines import SearchEngines
+from scixplain.datasources.search_engines import SearchEngines
 import aiohttp
 import logging
 from dataclasses import dataclass

@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 from typing import List
 
 from scixplain.datasources.base import AsyncWebSource
-from scixplain.datasources.engines import SearchEngines
+from scixplain.datasources.search_engines import SearchEngines
 
 
 class ArxivSearch(AsyncWebSource):

@@ -3,7 +3,7 @@ from typing import List
 
 import requests
 
-from scixplain.datasources.engines import SearchEngines
+from scixplain.datasources.search_engines import SearchEngines
 
 import logging
 import aiohttp
@@ -18,6 +18,59 @@ class SearchNotRun(Exception):
     def __init__(self):
         self.message = "In order to export a WebSource as an OpenAI Tool, the 'search' method must be called with 'await'."
         super().__init__(self.message)
+
+
+class Datasource:
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        resource_description: str,
+        search_terms: List[str],
+        max_results: int = 10,
+    ):
+        self.name = name
+        self.description = description
+        self.resource_description = resource_description
+        self.search_terms = search_terms
+        self.max_results = max_results
+
+        self.results = []
+
+    def _search(self):
+        pass
+
+    def _get_resource_values(self):
+        pass
+
+    @property
+    def tool_spec(self):
+        if len(self.results) == 0:
+            raise SearchNotRun()
+        else:
+            return {
+                "type": "function",
+                "function": {
+                    "name": self.name,
+                    "description": self.description,
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "resource": {
+                                "type": "string",
+                                "description": self.resource_description,
+                                "enum": self._get_resource_values(),
+                            }
+                        },
+                    },
+                },
+            }
+
+    def search(self):
+        pass
+
+    def get_content(self, resource: str) -> dict:
+        pass
 
 
 class AsyncDatasource:

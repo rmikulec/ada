@@ -4,8 +4,8 @@ from bs4 import BeautifulSoup
 
 from typing import Dict, List
 
-from scixplain.datasources.base import AsyncDatasource
-from scixplain.datasources.engines import SearchEngines
+from scixplain.datasources.base import Datasource
+from scixplain.datasources.search_engines import SearchEngines
 
 
 class WikiPage(wikipedia.WikipediaPage):
@@ -96,7 +96,7 @@ class WikiPage(wikipedia.WikipediaPage):
         return data
 
 
-class WikiSearch(AsyncDatasource):
+class WikiSearch(Datasource):
     def __init__(self, search_terms: List[str], max_results: int = 10):
         super().__init__(
             name="wikipedia_search",
@@ -108,7 +108,7 @@ class WikiSearch(AsyncDatasource):
 
         self.pages = []
 
-    def search(self):
+    def _search(self):
         potential_pages = [wikipedia.search(term)[0] for term in self.search_terms]
 
         potential_pages = list(set(potential_pages))
