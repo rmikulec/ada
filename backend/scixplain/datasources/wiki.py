@@ -96,10 +96,10 @@ class WikiPage(wikipedia.WikipediaPage):
         return data
 
 
-class AsyncWikiSearch(AsyncDatasource):
+class WikiSearch(AsyncDatasource):
     def __init__(self, search_terms: List[str], max_results: int = 10):
         super().__init__(
-            name="Wikipedia Search",
+            name="wikipedia_search",
             description="Retrieve sections of articles from wikipedia.",
             resource_description="The {page}/{section} wiki section to retrieve content from.",
             search_terms=search_terms,

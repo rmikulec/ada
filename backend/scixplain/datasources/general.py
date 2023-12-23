@@ -57,7 +57,7 @@ class WebSearchArticle:
 class GeneralSearch(AsyncWebSource):
     def __init__(self, search_terms: List[str], max_results: int = 3):
         super().__init__(
-            name="arXiv Search",
+            name="general_search",
             description="Searches the web for related articles to user's question",
             resource_description="The name of the article found in the search.",
             search_terms=search_terms,

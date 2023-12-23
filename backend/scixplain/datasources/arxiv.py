@@ -17,7 +17,7 @@ class ArxivSearch(AsyncWebSource):
         criterion: arxiv.SortCriterion = arxiv.SortCriterion.Relevance,
     ):
         super().__init__(
-            name="arXiv Search",
+            name="arxiv_search",
             description="Retrieve published papers form the arXiv",
             resource_description="The name of the paper that is wanted.",
             search_terms=search_terms,
