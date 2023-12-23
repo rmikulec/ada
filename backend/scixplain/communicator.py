@@ -88,8 +88,6 @@ class AsyncCommunicator:
         except Exception as err:
             logger.error(f"Tool {datasource.name} not added: \n {traceback.format_exc()}")
 
-        print(self.tools)
-
     def _get_num_tokens(self, text):
         encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)
         return len(encoder.encode(text))
