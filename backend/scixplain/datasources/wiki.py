@@ -1,10 +1,13 @@
 import wikipedia
+import logging
 import re
 from bs4 import BeautifulSoup
 
 from typing import Dict, List
 
 from scixplain.datasources.base import Datasource
+
+logger = logging.getLogger(__name__)
 
 
 class WikiPage(wikipedia.WikipediaPage):
@@ -126,6 +129,7 @@ class WikiSearch(Datasource):
         return section_enums
 
     def search(self):
+        logger.info("Searching Wiki....")
         self._search()
         self.pages.extend([WikiPage(title=title) for title in self.results])
 

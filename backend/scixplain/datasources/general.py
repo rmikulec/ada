@@ -78,7 +78,7 @@ class GeneralSearch(AsyncWebSource):
 
     async def search(self):
         await self._search()
-
+        logger.info("Searching the web...")
         for result in self.results:
             url = self._fix_http(result["link"])
             self.articles.append(WebSearchArticle(url=url, title=result["title"]))

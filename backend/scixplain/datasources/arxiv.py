@@ -1,5 +1,6 @@
 import arxiv
 import pathlib
+import logging
 from PyPDF2 import PdfReader
 
 from tempfile import TemporaryDirectory
@@ -7,6 +8,8 @@ from typing import List
 
 from scixplain.datasources.base import AsyncWebSource
 from scixplain.datasources.search_engines import SearchEngines
+
+logger = logging.getLogger(__name__)
 
 
 class ArxivSearch(AsyncWebSource):
@@ -40,6 +43,7 @@ class ArxivSearch(AsyncWebSource):
         return [paper.title for paper in self.papers]
 
     async def search(self):
+        logger.info("Searching the arXiv...")
         await self._search()
         client = arxiv.Client()
         try:
@@ -47,7 +51,8 @@ class ArxivSearch(AsyncWebSource):
                 result["pagemap"]["metatags"][0]["citation_arxiv_id"] for result in self.results
             ]
             search = arxiv.Search(id_list=result_ids)
-            self.papers.extend([paper for paper in client.results(search=search)])
+            papers = [paper for paper in client.results(search=search)]
+            self.papers.extend(papers)
         except arxiv.ArxivError:
             titles = [
                 result["pagemap"]["metatags"][0]["citation_title"] for result in self.results

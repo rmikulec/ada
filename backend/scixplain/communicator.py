@@ -88,14 +88,14 @@ class AsyncCommunicator:
 
         await asyncio.gather(*async_operations)
 
-        for datasource in filter(lambda d: isinstance(d, AsyncDatasource)):
+        for datasource in filter(lambda d: isinstance(d, AsyncDatasource), datasources):
             try:
                 self.tools.append(datasource.tool_spec)
                 self.function_mapping[datasource.name] = datasource.get_content
             except Exception as err:
                 logger.error(f"Tool {datasource.name} not added: \n {traceback.format_exc()}")
 
-        for datasource in filter(lambda d: isinstance(d, Datasource)):
+        for datasource in filter(lambda d: isinstance(d, Datasource), datasources):
             try:
                 datasource.search()
                 self.tools.append(datasource.tool_spec)

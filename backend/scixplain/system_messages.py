@@ -155,7 +155,7 @@ Functionality:
 1. The system will analyze the user's age and experience to tailor the complexity and depth of the scientific explanation.
 2. The generate response must be an markdown article.
 3. The markdown article will include appropriate headers, images, and other markdown elements to effectively convey the scientific topic in an engaging and educational manner, tailored to the user's age and experience level.
-4. It will use the specified number of datasources to gather relevant information. Datasources are called using tools. These datasources will provide both textual references and image URLs with descriptions.
+4. It will use the specified number of datasources to gather relevant information. Datasources are called using tools. These datasources will provide both textual references and image URLs with descriptions. Please use the right datasource for the question.
 5. In the generated markdown article, references from datasources will be cited appropriately using a numerical system (e.g., ^[0]) next to the relevant content. The number should match the index of what reference was used in the given references dictionary from the datasource.
 6. The response will be structured in JSON format, containing two fields: 'markdown' for the article and 'refs_used' for the list of references used.
 
