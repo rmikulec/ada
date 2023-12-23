@@ -45,12 +45,14 @@ class ArxivSearch(AsyncWebSource):
     async def search(self):
         logger.info("Searching the arXiv...")
         await self._search()
-        self.papers = {
-            result["pagemap"]["metatags"][0]["citation_title"]: result["pagemap"]["metatags"][0][
-                "citation_arxiv_id"
-            ]
-            for result in self.results
-        }
+        self.papers = {}
+        for result in self.results:
+            try:
+                title = result["pagemap"]["metatags"][0]["citation_title"]
+                id = result["pagemap"]["metatags"][0]["citation_arxiv_id"]
+                self.papers[title] = id
+            except KeyError:
+                pass
 
     def get_content(self, resource: str) -> dict:
         client = arxiv.Client()

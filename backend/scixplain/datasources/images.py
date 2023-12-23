@@ -24,7 +24,7 @@ class ImageWebSearch(AsyncWebSource):
     async def search(self):
         logger.info("Searching for Images...")
         await self._search()
-        self.images = {res["title"]: res["image"]["contextLink"] for res in self.results}
+        self.images = {res["title"]: res["link"] for res in self.results}
 
     def _get_resource_values(self):
         return list(self.images.keys())

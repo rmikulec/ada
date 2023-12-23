@@ -34,7 +34,7 @@ class AsyncCommunicator:
         age: int,
         experience: str,
         system_template: str = BASE_MESSAGE_2,
-        max_tokens=2_048,
+        max_tokens=4_096,
         datasources: List[DatasourceEngines] = [],
         min_resources: int = 3,
         n_search_terms: int = 3,
