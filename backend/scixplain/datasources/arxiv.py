@@ -3,20 +3,27 @@ import pathlib
 from PyPDF2 import PdfReader
 
 from tempfile import TemporaryDirectory
+from typing import List
 
-from scixplain.datasources.base import AsyncDatasource
-from scixplain.datasources.web import SearchEngines, AsyncWebSearch
+from scixplain.datasources.base import AsyncWebSource
+from scixplain.datasources.engines import SearchEngines
 
 
-class ArxivSearch(AsyncDatasource):
+class ArxivSearch(AsyncWebSource):
     def __init__(
         self,
-        question: str,
-        n_pages=3,
+        search_terms: List[str],
+        max_results: int = 5,
         criterion: arxiv.SortCriterion = arxiv.SortCriterion.Relevance,
     ):
-        self.question = question
-        self.n_pages = n_pages
+        super().__init__(
+            name="arXiv Search",
+            description="Retrieve published papers form the arXiv",
+            resource_description="The name of the paper that is wanted.",
+            search_terms=search_terms,
+            max_results=max_results,
+            engine=SearchEngines.ARXIVE,
+        )
         self.sort_criterion = criterion
         self.papers = []
 
@@ -29,38 +36,19 @@ class ArxivSearch(AsyncDatasource):
 
             return {i: page.extract_text() for i, page in enumerate(reader.pages)}
 
-    async def set_data(self):
-        results = await AsyncWebSearch.search(
-            question=self.question, n_articles=self.n_pages, engine=SearchEngines.ARXIVE
-        )
-        result_ids = [result.url.split("/")[-1] for result in results]
+    def _get_resource_values(self):
+        return [paper.title for paper in self.papers]
+
+    async def search(self):
+        await self._search()
+        result_ids = [result["link"].split("/")[-1] for result in self.results]
         search = arxiv.Search(id_list=result_ids)
 
         client = arxiv.Client()
 
-        self.papers = [paper for paper in client.results(search=search)]
+        self.papers.extend([paper for paper in client.results(search=search)])
 
-    def get_data(self, paper_title: str):
-        paper = list(filter(lambda p: p.title == paper_title, self.papers))[0]
+    def get_content(self, resource: str) -> dict:
+        paper = list(filter(lambda p: p.title == resource, self.papers))[0]
 
         return {"text": self._read_pdf(paper)}
-
-    def to_openai_tool(self):
-        return {
-            "type": "function",
-            "function": {
-                "name": "get_arxiv_paper",
-                "description": "Gets a research paper from ArXiv.com",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "paper_title": {
-                            "type": "string",
-                            "description": "the title of the research paper to get",
-                            "enum": [paper.title for paper in self.papers],
-                        }
-                    },
-                    "required": ["paper_title"],
-                },
-            },
-        }
