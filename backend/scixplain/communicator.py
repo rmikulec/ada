@@ -80,25 +80,28 @@ class AsyncCommunicator:
         return json.loads(message)
 
     async def _set_tools(self, datasources: List[AsyncDatasource]):
-        try:
-            async_operations = []
-            for datasource in datasources:
-                if isinstance(datasource, AsyncDatasource):
-                    async_operations.append(datasource.search)
-                elif isinstance(datasource, Datasource):
-                    datasource.search()
-                else:
-                    raise InvalidDatasourceType(ds_type=type(datasource), name=datasource.name)
+        async_operations = [
+            datasource.search()
+            for datasource in datasources
+            if isinstance(datasource, AsyncDatasource)
+        ]
+
+        await asyncio.gather(*async_operations)
+
+        for datasource in filter(lambda d: isinstance(d, AsyncDatasource)):
+            try:
                 self.tools.append(datasource.tool_spec)
                 self.function_mapping[datasource.name] = datasource.get_content
-            await asyncio.gather(*async_operations)
-        except Exception as err:
-            logger.error(f"Tool {datasource.name} not added: \n {traceback.format_exc()}")
-            if datasource.name in self.function_mapping:
-                del self.function_mapping[datasource.name]
-                self.tools = list(
-                    filter(lambda spec: spec["function"]["name"] != datasource.name, self.tools)
-                )
+            except Exception as err:
+                logger.error(f"Tool {datasource.name} not added: \n {traceback.format_exc()}")
+
+        for datasource in filter(lambda d: isinstance(d, Datasource)):
+            try:
+                datasource.search()
+                self.tools.append(datasource.tool_spec)
+                self.function_mapping[datasource.name] = datasource.get_content
+            except Exception as err:
+                logger.error(f"Tool {datasource.name} not added: \n {traceback.format_exc()}")
 
     def _get_num_tokens(self, text):
         encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)

@@ -15,7 +15,7 @@ class AgeNotValidError(Exception):
 
 class DatasourceConfig(BaseModel):
     type: DatasourceEngines
-    parameters: dict
+    parameters: Optional[dict] = None
 
 
 class AnswerConfig(BaseModel):

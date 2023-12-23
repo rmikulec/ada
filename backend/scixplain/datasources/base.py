@@ -170,10 +170,10 @@ class AsyncWebSource(AsyncDatasource, ABC):
                 },
             ) as res:
                 results = json.loads(await res.text())
-
-                for res in results["items"]:
-                    if self._test_url(res["link"]):
-                        self.results.append(res)
+                if "items" in results:
+                    for res in results["items"]:
+                        if self._test_url(res["link"]):
+                            self.results.append(res)
 
     async def _search(self):
         await asyncio.gather(*[self._search_per_term(term) for term in self.search_terms])

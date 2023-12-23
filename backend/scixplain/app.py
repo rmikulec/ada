@@ -5,10 +5,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from scixplain.communicator import AsyncCommunicator as Communicator
-from scixplain.datasources.wiki import WikiSearch as WikiSearch
-from scixplain.datasources.general import AsyncWebSearch as WebSearch
-from scixplain.datasources.arxiv import ArxivSearch
-from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed, ResourceTypes
+from scixplain.datasources.ds_engines import DatasourceEngines
+from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed
 
 from uuid import uuid4
 
@@ -32,13 +30,12 @@ app.add_middleware(
 @app.post("/ask", response_model=QuestionResponse)
 async def ask(request: QuestionRequest) -> QuestionResponse:
     communicator = Communicator(
-        initial_question=request.question,
         age=request.age,
         experience=request.experience,
-        datasources=request.datasources,
+        datasources=[ds_config.type for ds_config in request.config.datasources],
     )
 
-    await communicator.run()
+    await communicator.ask(question=request.question)
 
     last_message = communicator.messages[-1]
 
@@ -64,7 +61,7 @@ def test(request: QuestionRequest) -> QuestionResponse:
                 url="https://google/com",
                 sections=["only one"],
                 references=["https://bing.com"],
-                type=ResourceTypes.WIKIPEDIA,
+                type=DatasourceEngines.WIKI,
             )
         ],
     )
