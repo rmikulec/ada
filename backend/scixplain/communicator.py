@@ -36,7 +36,7 @@ class AsyncCommunicator:
         system_template: str = BASE_MESSAGE_2,
         max_tokens=2_048,
         datasources: List[DatasourceEngines] = [],
-        min_articles: int = 3,
+        min_resources: int = 3,
         n_search_terms: int = 3,
     ):
         self.client = AsyncOpenAI()
@@ -51,7 +51,7 @@ class AsyncCommunicator:
 
         # Create system message
         self.system_message = system_template.format(
-            age=self.age, experience=self.experience, min_articles=min_articles
+            age=self.age, experience=self.experience, min_resources=min_resources
         )
         self.system_message_n_tokens = self._get_num_tokens(self.system_message)
 

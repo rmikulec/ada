@@ -149,7 +149,7 @@ Utilizes OpenAI tools for sourcing data and incorporates images to enhance under
 Parameters:
 - age (int): The age of the user requesting the information.
 - experience (str): The user's level of education or relevant job experience.
-- n_datasources (int): The least number of datasources you should use to answer the question.
+- n_resources (int): The least number of resources you should use. These can be all from one datasouce, or picked from many. 
 
 Functionality:
 1. The system will analyze the user's age and experience to tailor the complexity and depth of the scientific explanation.
@@ -179,5 +179,5 @@ Example Response:
 
 The user is {age} years old.
 The user's experience is {experience}
-You must use at least {min_articles} articles to answer the queston
+You must use at least {min_resources} articles to answer the queston
 """

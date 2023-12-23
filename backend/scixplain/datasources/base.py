@@ -138,7 +138,7 @@ class AsyncWebSource(AsyncDatasource, ABC):
         resource_description: str,
         search_terms: List[str],
         engine: SearchEngines,
-        max_results: int = 5,
+        max_results: int = 3,
     ):
         super().__init__(
             name=name,
@@ -150,33 +150,26 @@ class AsyncWebSource(AsyncDatasource, ABC):
 
         self.engine = engine
 
-    def _test_url(self, url: str):
-        try:
-            logger.debug(f"Testing {url}...")
-            res = requests.get(url)
-            return res.status_code in [200, 201, 202, 203]
-        except:
-            return False
-
-    async def _search_per_term(self, term: str):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url="https://www.googleapis.com/customsearch/v1",
-                params={
-                    "key": os.environ["GOOGLE_KEY"],
-                    "cx": self.engine.value,
-                    "q": term,
-                    "count": self.max_results,
-                },
-            ) as res:
-                results = json.loads(await res.text())
-                if "items" in results:
-                    for res in results["items"]:
-                        if self._test_url(res["link"]):
-                            self.results.append(res)
+    async def _search_per_term(self, term: str, session: aiohttp.ClientSession):
+        async with session.get(
+            url="https://www.googleapis.com/customsearch/v1",
+            params={
+                "key": os.environ["GOOGLE_KEY"],
+                "cx": self.engine.value,
+                "q": term,
+                "count": self.max_results,
+            },
+        ) as res:
+            results = json.loads(await res.text())
+            if "items" in results:
+                for res in results["items"]:
+                    self.results.append(res)
 
     async def _search(self):
-        await asyncio.gather(*[self._search_per_term(term) for term in self.search_terms])
+        async with aiohttp.ClientSession() as session:
+            await asyncio.gather(
+                *[self._search_per_term(term=term, session=session) for term in self.search_terms]
+            )
 
 
 class DatasourceReturn:
