@@ -173,7 +173,11 @@ class AsyncWikiSearch(AsyncDatasource):
         )
 
         message = response.choices[0].message.content
-        return json.loads(message)
+
+        try:
+            return json.loads(message)
+        except json.JSONDecodeError:
+            return []
 
     # TODO: Would like to update to do round robin addding.
     #   So take the first page from each term, then the second
@@ -210,21 +214,25 @@ class AsyncWikiSearch(AsyncDatasource):
         return section_enums
 
     def to_openai_tool(self):
-        return {
-            "type": "function",
-            "function": {
-                "name": "get_wikipedia_content",
-                "description": "Gets content from a wikipedia section, including text, images, and any references used.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "route": {
-                            "type": "string",
-                            "description": "the 'title/section' of the wikipedia page to get content from.",
-                            "enum": self._get_section_enums(),
+        sections = self._get_section_enums()
+        if len(sections) == 0:
+            return None
+        else:
+            return {
+                "type": "function",
+                "function": {
+                    "name": "get_wikipedia_content",
+                    "description": "Gets content from a wikipedia section, including text, images, and any references used.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "route": {
+                                "type": "string",
+                                "description": "the 'title/section' of the wikipedia page to get content from.",
+                                "enum": self._get_section_enums(),
+                            },
                         },
+                        "required": ["route"],
                     },
-                    "required": ["route"],
                 },
-            },
-        }
+            }

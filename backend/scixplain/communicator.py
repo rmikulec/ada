@@ -1,12 +1,16 @@
 from openai import AsyncOpenAI, OpenAI
 from typing import List
 import json
+import logging
 import pathlib
 import tiktoken
 
 from scixplain import DEFAULT_MODEL
 from scixplain.system_messages import BASE_MESSAGE, BASE_MESSAGE_2
-from scixplain.datasources.base import AsyncDatasource
+from scixplain.datasources.base import AsyncDatasource, Datasource
+
+
+logger = logging.getLogger(__name__)
 
 
 class FunctionNameExists(Exception):
@@ -22,7 +26,7 @@ class Communicator:
         age: int,
         experience: str,
         system_template: str = BASE_MESSAGE_2,
-        max_tokens=2_048,
+        max_tokens=4_096,
         n_datasources: int = 3,
     ):
         self.client = OpenAI()
@@ -62,8 +66,13 @@ class Communicator:
             raise FunctionNameExists(func_name=func_name)
 
     def _call_tool(self, tool_name, **kwargs):
-        content = self.function_mapping[tool_name](**kwargs)
-        return json.dumps(content, indent=4)
+        try:
+            content = self.function_mapping[tool_name](**kwargs)
+            return json.dumps(content)
+        except Exception as err:
+            message = f"Tool {tool_name} produced an error: \n {str(err)}"
+            logger.error(message)
+            return {"tool_name": tool_name, "error": err}
 
     def _call_openai(self):
         response = self.client.chat.completions.create(
@@ -84,7 +93,7 @@ class Communicator:
             for tool_call in tool_calls:
                 func_args = json.loads(tool_call.function.arguments)
                 tool_name = tool_call.function.name
-                print(f"Calling {tool_name} with {func_args}")
+                logger.info(f"Calling {tool_name} with {func_args}")
                 content = self._call_tool(tool_name=tool_name, **func_args)
                 tool_message = {
                     "role": "tool",
@@ -162,7 +171,7 @@ class AsyncCommunicator:
 
     def _call_tool(self, tool_name, **kwargs):
         content = self.function_mapping[tool_name](**kwargs)
-        return json.dumps(content, indent=4)
+        return json.dumps(content)
 
     async def _call_openai(self):
         response = await self.client.chat.completions.create(
@@ -182,7 +191,7 @@ class AsyncCommunicator:
             for tool_call in tool_calls:
                 func_args = json.loads(tool_call.function.arguments)
                 tool_name = tool_call.function.name
-                print(f"Calling {tool_name} with {func_args}")
+                logger.info(f"Calling {tool_name} with {func_args}")
                 content = self._call_tool(tool_name=tool_name, **func_args)
                 tool_message = {
                     "role": "tool",
@@ -206,8 +215,18 @@ class AsyncCommunicator:
 
     async def run(self):
         for datasource in self.datasources:
-            await datasource.set_data()
-            tool_spec = datasource.to_openai_tool()
-            self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+            try:
+                if isinstance(datasource, AsyncDatasource):
+                    await datasource.set_data()
+                    tool_spec = datasource.to_openai_tool()
+                    if tool_spec is not None:
+                        self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+                elif isinstance(datasource, Datasource):
+                    tool_spec = datasource.to_openai_tool()
+                    if tool_spec is not None:
+                        self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+            except Exception as err:
+                logger.error(f"Tool {tool_spec['function']['name']} not added: \n {str(err)}")
 
+        logger.info("Tools:" + json.dumps(self.tools, indent=4))
         await self._call_openai()

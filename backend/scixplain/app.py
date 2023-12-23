@@ -1,12 +1,20 @@
 import json
+import logging
+import logging.config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from scixplain.communicator import AsyncCommunicator as Communicator
 from scixplain.datasources.wiki import AsyncWikiSearch as WikiSearch
+from scixplain.datasources.web import AsyncWebSearch as WebSearch
+from scixplain.datasources.arxiv import ArxivSearch
 from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed, ResourceTypes
 
 from uuid import uuid4
+
+# Setup logger
+logging.config.fileConfig("./scixplain/logging.conf", disable_existing_loggers=False)
+logger = logging.getLogger(__name__)
 
 # Create an instance of the FastAPI class
 app = FastAPI()
@@ -28,8 +36,14 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
             question=request.question,
             n_pages=request.config.n_pages,
             n_sections=request.config.n_sections,
-        )
+        ),
+        WebSearch(question=request.question, n_articles=request.config.n_pages),
+        ArxivSearch(
+            question=request.question,
+            n_pages=request.config.n_pages,
+        ),
     ]
+
     communicator = Communicator(
         initial_question=request.question,
         age=request.age,
@@ -59,6 +73,18 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
                         type=ResourceTypes.WIKIPEDIA,
                     )
                     for page in datasource.pages
+                ]
+            )
+        elif type(datasource) == ArxivSearch:
+            resources.extend(
+                [
+                    ResourceUsed(
+                        url=paper.title,
+                        sections=paper.categories,
+                        references=[link.href for link in paper.links],
+                        type=ResourceTypes.ARXIV,
+                    )
+                    for paper in datasource.papers
                 ]
             )
 
