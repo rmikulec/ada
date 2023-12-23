@@ -5,6 +5,7 @@ import pathlib
 import logging
 import pathlib
 import tiktoken
+import traceback
 
 from scixplain import DEFAULT_MODEL
 from scixplain.system_messages import BASE_MESSAGE_2, SEARCH_TERMS
@@ -76,16 +77,16 @@ class AsyncCommunicator:
     async def _set_tools(self, datasources: List[AsyncDatasource]):
         try:
             for datasource in datasources:
-                if type(datasource) == AsyncDatasource:
+                if isinstance(datasource, AsyncDatasource):
                     await datasource.search()
-                elif type(datasource) == Datasource:
+                elif isinstance(datasource, Datasource):
                     datasource.search()
                 else:
                     raise InvalidDatasourceType(ds_type=type(datasource), name=datasource.name)
                 self.tools.append(datasource.tool_spec)
                 self.function_mapping[datasource.name] = datasource.get_content
         except Exception as err:
-            logger.error(f"Tool {datasource.name} not added: \n {str(err)}")
+            logger.error(f"Tool {datasource.name} not added: \n {traceback.format_exc()}")
 
         print(self.tools)
 
@@ -136,7 +137,7 @@ class AsyncCommunicator:
 
         export_path = pathlib.Path(export_path)
         export_path.mkdir(exist_ok=True, parents=True)
-        (export_path / self.question.lower().replace(" ", "-")).write_text(md)
+        (export_path / question.lower().replace(" ", "-")).write_text(md)
 
     async def ask(self, question: str, export_path: Union[pathlib.Path, str] = None):
         logger.info(f"Question asked: {question}")

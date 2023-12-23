@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from typing import Dict, List
 
 from scixplain.datasources.base import Datasource
-from scixplain.datasources.search_engines import SearchEngines
 
 
 class WikiPage(wikipedia.WikipediaPage):
