@@ -66,8 +66,13 @@ class Communicator:
             raise FunctionNameExists(func_name=func_name)
 
     def _call_tool(self, tool_name, **kwargs):
-        content = self.function_mapping[tool_name](**kwargs)
-        return json.dumps(content)
+        try:
+            content = self.function_mapping[tool_name](**kwargs)
+            return json.dumps(content)
+        except Exception as err:
+            message = f"Tool {tool_name} produced an error: \n {str(err)}"
+            logger.error(message)
+            return {"tool_name": tool_name, "error": err}
 
     def _call_openai(self):
         response = self.client.chat.completions.create(
@@ -210,15 +215,18 @@ class AsyncCommunicator:
 
     async def run(self):
         for datasource in self.datasources:
-            if isinstance(datasource, AsyncDatasource):
-                await datasource.set_data()
-                tool_spec = datasource.to_openai_tool()
-                if tool_spec is not None:
-                    self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
-            elif isinstance(datasource, Datasource):
-                tool_spec = datasource.to_openai_tool()
-                if tool_spec is not None:
-                    self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+            try:
+                if isinstance(datasource, AsyncDatasource):
+                    await datasource.set_data()
+                    tool_spec = datasource.to_openai_tool()
+                    if tool_spec is not None:
+                        self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+                elif isinstance(datasource, Datasource):
+                    tool_spec = datasource.to_openai_tool()
+                    if tool_spec is not None:
+                        self.add_tool(tool_spec=tool_spec, func=datasource.get_data)
+            except Exception as err:
+                logger.error(f"Tool {tool_spec['function']['name']} not added: \n {str(err)}")
 
         logger.info("Tools:" + json.dumps(self.tools, indent=4))
         await self._call_openai()
