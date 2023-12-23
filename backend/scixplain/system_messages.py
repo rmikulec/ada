@@ -179,5 +179,5 @@ Example Response:
 
 The user is {age} years old.
 The user's experience is {experience}
-You must use at least {n_datasources} to answer the queston
+You must use at least {min_articles} articles to answer the queston
 """
