@@ -93,8 +93,17 @@ class AsyncCommunicator:
         return len(encoder.encode(text))
 
     def _call_tool(self, tool_name, **kwargs):
-        content = self.function_mapping[tool_name](**kwargs)
-        return json.dumps(content)
+        try:
+            content = self.function_mapping[tool_name](**kwargs)
+            return json.dumps(content)
+        except Exception as err:
+            logger.error(f"Tool {tool_name} failed: {traceback.format_exc()}")
+            return json.dumps(
+                {
+                    "tool_name": tool_name,
+                    "content": "Failed to execute. Please use a different tool or resource",
+                }
+            )
 
     async def _call_openai(self):
         response = await self.client.chat.completions.create(

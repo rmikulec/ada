@@ -41,12 +41,18 @@ class ArxivSearch(AsyncWebSource):
 
     async def search(self):
         await self._search()
-        result_ids = [result["link"].split("/")[-1] for result in self.results]
-        search = arxiv.Search(id_list=result_ids)
-
         client = arxiv.Client()
-
-        self.papers.extend([paper for paper in client.results(search=search)])
+        try:
+            result_ids = [
+                result["pagemap"]["metatags"][0]["citation_arxiv_id"] for result in self.results
+            ]
+            search = arxiv.Search(id_list=result_ids)
+            self.papers.extend([paper for paper in client.results(search=search)])
+        except arxiv.ArxivError:
+            titles = [result["metadata"]["citation_title"] for result in self.results]
+            for title in titles:
+                search = arxiv.Search(query=title)
+                self.papers.append([paper for paper in client.results(search=search)][0])
 
     def get_content(self, resource: str) -> dict:
         paper = list(filter(lambda p: p.title == resource, self.papers))[0]
