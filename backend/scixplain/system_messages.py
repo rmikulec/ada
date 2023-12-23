@@ -59,8 +59,8 @@ The Wikipedia data is provided below ({n_sections} sections and their content mu
 The user is {age} years old and has the experience of {experience}, so answer the question with this context.
 """
 
-WIKI_SEARCH_TERMS = """
-You are an AI Assistant that recieves a question and must return a list of potential search terms for wikipedia.
+SEARCH_TERMS = """
+You are an AI Assistant that recieves a question and must return a list of potential search terms to use on web searches.
 
 For example, someone might ask "Did humans cause climate change?"
 and you would return:
@@ -81,8 +81,7 @@ which you may return something like:
     "human evolution",
 ]
 
-These questions can be anything. Be sure to adapt the terms to what the question is. If you know of
-any specific wikipedia pages that are relevant to the question, those will be accepted as well.
+These questions can be anything. Be sure to adapt the terms to what the question is.
 
 Please only return answers in a python list format. Return at most 5 terms.
 
