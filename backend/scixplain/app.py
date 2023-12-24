@@ -32,7 +32,7 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
     communicator = Communicator(
         age=request.age,
         experience=request.experience,
-        datasources=[ds_config.type for ds_config in request.config.datasources],
+        datasources=[ds.engine for ds in request.config.datasources],
     )
 
     response = await communicator.ask(question=request.question)

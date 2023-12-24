@@ -9,7 +9,7 @@ import tiktoken
 import traceback
 
 from scixplain import DEFAULT_MODEL
-from scixplain.system_messages import BASE_MESSAGE_2, SEARCH_TERMS, FIX_JSON
+from scixplain.system_messages import BASE_MESSAGE, SEARCH_TERMS, FIX_JSON
 from scixplain.datasources.ds_engines import DatasourceEngines
 from scixplain.datasources.base import AsyncDatasource, Datasource
 from scixplain.models import ArticleLength
@@ -34,7 +34,7 @@ class AsyncCommunicator:
         self,
         age: int,
         experience: str,
-        system_template: str = BASE_MESSAGE_2,
+        system_template: str = BASE_MESSAGE,
         max_tokens=4_096,
         datasources: List[DatasourceEngines] = [],
         min_resources: int = 3,
@@ -210,7 +210,7 @@ class AsyncCommunicator:
         # Search with the question as well
         terms.append(question)
         logger.info("Setting up tools")
-        datasources = [datasource.value(search_terms=terms) for datasource in self.datasources]
+        datasources = [datasource(search_terms=terms) for datasource in self.datasources]
         await self._set_tools(datasources=datasources)
         logger.info("Tools:" + json.dumps(self.tools, indent=4))
         await self._call_openai()
