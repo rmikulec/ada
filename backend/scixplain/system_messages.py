@@ -54,7 +54,7 @@ Please only return answers in a python list format. Return at most 5 terms.
 """
 
 
-BASE_MESSAGE_2 = """
+BASE_MESSAGE = """
 You are an AI that generates a detailed, age and experience-appropriate scientific explanation in markdown format. 
 Utilizes OpenAI tools for sourcing data and incorporates images to enhance understanding.
 
@@ -62,6 +62,7 @@ Parameters:
 - age (int): The age of the user requesting the information.
 - experience (str): The user's level of education or relevant job experience.
 - n_resources (int): The least number of resources you should use. These can be all from one datasouce, or picked from many. 
+- article_length (int): The length of the generated JSON article, given in number of words.
 
 Functionality:
 1. The system will analyze the user's age and experience to tailor the complexity and depth of the scientific explanation.
@@ -93,6 +94,7 @@ Example Response:
 The user is {age} years old.
 The user's experience is {experience}
 You must use at least {min_resources} articles to answer the queston
+The article should be around {article_length}
 """
 
 

@@ -12,6 +12,7 @@ from scixplain import DEFAULT_MODEL
 from scixplain.system_messages import BASE_MESSAGE_2, SEARCH_TERMS, FIX_JSON
 from scixplain.datasources.ds_engines import DatasourceEngines
 from scixplain.datasources.base import AsyncDatasource, Datasource
+from scixplain.models import ArticleLength
 
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,7 @@ class AsyncCommunicator:
         datasources: List[DatasourceEngines] = [],
         min_resources: int = 3,
         n_search_terms: int = 3,
+        article_length: ArticleLength = ArticleLength.LONG,
     ):
         self.client = AsyncOpenAI()
         self.max_tokens = max_tokens
@@ -51,7 +53,10 @@ class AsyncCommunicator:
 
         # Create system message
         self.system_message = system_template.format(
-            age=self.age, experience=self.experience, min_resources=min_resources
+            age=self.age,
+            experience=self.experience,
+            min_resources=min_resources,
+            article_length=article_length.value,
         )
         self.system_message_n_tokens = self._get_num_tokens(self.system_message)
 
@@ -167,6 +172,7 @@ class AsyncCommunicator:
         return await self.client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=[
+                {"role": "system", "content": FIX_JSON},
                 {"role": "user", "content": json_string},
             ],
             max_tokens=self.max_tokens,
@@ -188,6 +194,8 @@ class AsyncCommunicator:
                 )
                 response = await self._fix_json(content)
                 return self._verify_results(response.choices[0].message.content)
+            else:
+                return response
 
         except json.JSONDecodeError:
             logger.warning("JSON Decode Failed; Recalling OpenAI to fix...")
