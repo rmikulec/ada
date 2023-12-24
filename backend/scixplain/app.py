@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from scixplain.communicator import AsyncCommunicator as Communicator
 from scixplain.datasources.ds_engines import DatasourceEngines
-from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed
+from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed, ArticleLengths
 
 from uuid import uuid4
 
@@ -33,6 +33,7 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         age=request.age,
         experience=request.experience,
         datasources=[ds_config.type for ds_config in request.config.datasources],
+        article_length=ArticleLengths.LONG
     )
 
     await communicator.ask(question=request.question)

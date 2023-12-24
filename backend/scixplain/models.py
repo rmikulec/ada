@@ -8,6 +8,12 @@ from scixplain.config import MAX_TOKENS
 from scixplain.datasources.ds_engines import DatasourceEngines
 
 
+class ArticleLengths(Enum):
+    SHORT = 800
+    MEDIUM = 1_600
+    LONG = 3_200
+
+
 class AgeNotValidError(Exception):
     def __init__(self, age) -> None:
         self.message = f"Provided age: {age} not within valid range: 3-120 years."
