@@ -9,7 +9,7 @@ import tiktoken
 import traceback
 
 from scixplain import DEFAULT_MODEL
-from scixplain.system_messages import BASE_MESSAGE_2, SEARCH_TERMS
+from scixplain.system_messages import BASE_MESSAGE_2, SEARCH_TERMS, FIX_JSON
 from scixplain.datasources.ds_engines import DatasourceEngines
 from scixplain.datasources.base import AsyncDatasource, Datasource
 
@@ -163,6 +163,37 @@ class AsyncCommunicator:
         export_path.mkdir(exist_ok=True, parents=True)
         (export_path / question.lower().replace(" ", "-")).write_text(md)
 
+    async def _fix_json(self, json_string: str):
+        return await self.client.chat.completions.create(
+            model=DEFAULT_MODEL,
+            messages=[
+                {"role": "user", "content": json_string},
+            ],
+            max_tokens=self.max_tokens,
+            response_format={"type": "json_object"},
+        )
+
+    async def _verify_results(self):
+        last_message = self.messages[-1]
+
+        if type(last_message) == dict:
+            content = last_message["content"]
+        else:
+            content = last_message.content
+        try:
+            response = json.loads(content)
+            if ("markdown" not in response) or ("refs_used" not in response):
+                logger.warning(
+                    "JSON created in properly, missing needed keys. Recalling OpenAI to fix..."
+                )
+                response = await self._fix_json(content)
+                return self._verify_results(response.choices[0].message.content)
+
+        except json.JSONDecodeError:
+            logger.warning("JSON Decode Failed; Recalling OpenAI to fix...")
+            response = await self._fix_json(content)
+            return self._verify_results(response.choices[0].message.content)
+
     async def ask(self, question: str, export_path: Union[pathlib.Path, str] = None):
         logger.info(f"Question asked: {question}")
         self._add_question(question=question)
@@ -178,3 +209,5 @@ class AsyncCommunicator:
 
         if export_path:
             self._export_results(question=question, export_path=export_path)
+
+        return await self._verify_results()

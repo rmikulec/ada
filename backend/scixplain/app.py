@@ -35,21 +35,14 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         datasources=[ds_config.type for ds_config in request.config.datasources],
     )
 
-    await communicator.ask(question=request.question)
-
-    last_message = communicator.messages[-1]
-
-    if type(last_message) == dict:
-        content = json.loads(communicator.messages[-1]["content"])
-    else:
-        content = json.loads(communicator.messages[-1].content)
+    response = await communicator.ask(question=request.question)
 
     resources = []
 
-    logger.info(content)
+    logger.info(response)
 
     return QuestionResponse(
-        markdown=content["markdown"], references=content["refs_used"], resources=resources
+        markdown=response["markdown"], references=response["refs_used"], resources=resources
     )
 
 
