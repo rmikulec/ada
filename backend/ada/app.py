@@ -4,9 +4,9 @@ import logging.config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from scixplain.communicator import AsyncCommunicator as Communicator
-from scixplain.datasources.ds_engines import DatasourceEngines
-from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed
+from ada.communicator import AsyncCommunicator as Communicator
+from ada.datasources.ds_engines import DatasourceEngines
+from ada.models import QuestionRequest, QuestionResponse, ResourceUsed
 
 from uuid import uuid4
 
@@ -32,17 +32,24 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
     communicator = Communicator(
         age=request.age,
         experience=request.experience,
-        datasources=[ds.engine for ds in request.config.datasources],
+        datasources=[ds_config.type for ds_config in request.config.datasources],
     )
 
-    response = await communicator.ask(question=request.question)
+    await communicator.ask(question=request.question)
+
+    last_message = communicator.messages[-1]
+
+    if type(last_message) == dict:
+        content = json.loads(communicator.messages[-1]["content"])
+    else:
+        content = json.loads(communicator.messages[-1].content)
 
     resources = []
 
-    logger.info(response)
+    logger.info(content)
 
     return QuestionResponse(
-        markdown=response["markdown"], references=response["refs_used"], resources=resources
+        markdown=content["markdown"], references=content["refs_used"], resources=resources
     )
 
 

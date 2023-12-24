@@ -1,24 +1,13 @@
 from enum import Enum
-import logging
 
-from scixplain.datasources.wiki import WikiSearch
-from scixplain.datasources.general import GeneralSearch
-from scixplain.datasources.arxiv import ArxivSearch
-from scixplain.datasources.images import ImageWebSearch
-
-logger = logging.getLogger(__name__)
+from ada.datasources.wiki import WikiSearch
+from ada.datasources.general import GeneralSearch
+from ada.datasources.arxiv import ArxivSearch
+from ada.datasources.images import ImageWebSearch
 
 
 class DatasourceEngines(Enum):
-    GENERAL = "General"
-    ARXIV = "Arxiv"
-    WIKI = "Wiki"
-    IMAGE = "Image"
-
-
-DATASOURCE_RESOLVER = {
-    "General": GeneralSearch,
-    "Arxiv": ArxivSearch,
-    "Wiki": WikiSearch,
-    "Image": ImageWebSearch,
-}
+    GENERAL = GeneralSearch
+    ARXIV = ArxivSearch
+    WIKI = WikiSearch
+    IMAGE = ImageWebSearch
