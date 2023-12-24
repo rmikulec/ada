@@ -19,3 +19,8 @@
   .message-enter {
     animation: fadeIn 0.5s, slideUp 0.5s;
   }
+
+  .chat-box .button {
+    padding-left: 2%;
+    padding-right: 2%;
+  }
