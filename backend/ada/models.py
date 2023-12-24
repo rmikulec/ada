@@ -5,7 +5,18 @@ from uuid import UUID, uuid4
 from enum import Enum
 
 from scixplain.config import MAX_TOKENS
-from scixplain.datasources.ds_engines import DatasourceEngines
+from scixplain.datasources.ds_engines import DatasourceEngines, DATASOURCE_RESOLVER
+
+
+class ArticleLength(Enum):
+    SHORT = 800
+    MEDIUM = 1_600
+    LONG = 3_200
+
+
+class InvalidDatasourceType(Exception):
+    def __init__(self, datasource):
+        self.message = f"{datasource} is not a valid datasource engine."
 
 
 class AgeNotValidError(Exception):
@@ -14,18 +25,25 @@ class AgeNotValidError(Exception):
 
 
 class DatasourceConfig(BaseModel):
-    type: DatasourceEngines
-    parameters: Optional[dict] = None
+    engine: DatasourceEngines
+    max_results: Optional[int] = 3
+
+    @validator("engine", allow_reuse=True)
+    def engine_resolver(cls, value):
+        if isinstance(value, DatasourceEngines):
+            return DATASOURCE_RESOLVER[value.value]
+        raise InvalidDatasourceType(datasource=value.value)
 
 
 class AnswerConfig(BaseModel):
     max_tokens: Optional[int] = MAX_TOKENS
     max_results: Optional[int] = 5
+    article_len: Optional[ArticleLength] = ArticleLength.MEDIUM
     datasources: List[DatasourceConfig] = [
-        DatasourceConfig(type=DatasourceEngines.GENERAL),
-        DatasourceConfig(type=DatasourceEngines.ARXIV),
-        DatasourceConfig(type=DatasourceEngines.WIKI),
-        DatasourceConfig(type=DatasourceEngines.IMAGE),
+        DatasourceConfig(engine=DatasourceEngines.GENERAL),
+        DatasourceConfig(engine=DatasourceEngines.ARXIV),
+        DatasourceConfig(engine=DatasourceEngines.WIKI),
+        DatasourceConfig(engine=DatasourceEngines.IMAGE),
     ]
 
 
