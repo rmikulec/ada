@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 from typing import Dict, List
 
-from scixplain.datasources.base import Datasource
+from ada.datasources.base import Datasource
 
 logger = logging.getLogger(__name__)
 

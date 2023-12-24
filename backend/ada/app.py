@@ -4,14 +4,14 @@ import logging.config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from scixplain.communicator import AsyncCommunicator as Communicator
-from scixplain.datasources.ds_engines import DatasourceEngines
-from scixplain.models import QuestionRequest, QuestionResponse, ResourceUsed
+from ada.communicator import AsyncCommunicator as Communicator
+from ada.datasources.ds_engines import DatasourceEngines
+from ada.models import QuestionRequest, QuestionResponse, ResourceUsed
 
 from uuid import uuid4
 
 # Setup logger
-logging.config.fileConfig("./scixplain/logging.conf", disable_existing_loggers=False)
+logging.config.fileConfig("./ada/logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 # Create an instance of the FastAPI class

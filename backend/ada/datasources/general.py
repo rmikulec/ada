@@ -1,5 +1,5 @@
-from scixplain.datasources.base import AsyncWebSource
-from scixplain.datasources.search_engines import SearchEngines
+from ada.datasources.base import AsyncWebSource
+from ada.datasources.search_engines import SearchEngines
 import logging
 from dataclasses import dataclass
 from typing import List

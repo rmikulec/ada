@@ -1,10 +1,10 @@
 from enum import Enum
 import logging
 
-from scixplain.datasources.wiki import WikiSearch
-from scixplain.datasources.general import GeneralSearch
-from scixplain.datasources.arxiv import ArxivSearch
-from scixplain.datasources.images import ImageWebSearch
+from ada.datasources.wiki import WikiSearch
+from ada.datasources.general import GeneralSearch
+from ada.datasources.arxiv import ArxivSearch
+from ada.datasources.images import ImageWebSearch
 
 logger = logging.getLogger(__name__)
 
