@@ -39,7 +39,7 @@ class DatasourceConfig(BaseModel):
 class AnswerConfig(BaseModel):
     max_tokens: Optional[int] = MAX_TOKENS
     max_results: Optional[int] = 5
-    article_len: Optional[ArticleLength] = ArticleLength.MEDIUM
+    article_len: Optional[ArticleLength] = ArticleLength.LONG
     datasources: List[DatasourceConfig] = [
         DatasourceConfig(engine=DatasourceEngines.GENERAL),
         DatasourceConfig(engine=DatasourceEngines.ARXIV),
