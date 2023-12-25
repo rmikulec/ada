@@ -1,4 +1,3 @@
-import json
 import logging
 import logging.config
 from fastapi import FastAPI
@@ -6,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from ada.communicator import AsyncCommunicator as Communicator
 from ada.datasources.ds_engines import DatasourceEngines
-from ada.models import QuestionRequest, QuestionResponse, Reference, ReferenceType
+from ada.models import QuestionRequest, QuestionResponse, Reference
 
 from uuid import uuid4
 
