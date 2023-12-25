@@ -29,7 +29,8 @@ export const QuestionProvider = ({ children }) => {
         id: questionIdCounter,
         text: question,
         user: 'user',
-        answer: response.markdown
+        answer: response.markdown,
+        references: response.references
       };
       setQuestions(oldQuestions => [...oldQuestions, newQueston])
       setSelectedQuestion(newQueston)

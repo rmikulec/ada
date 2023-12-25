@@ -6,6 +6,7 @@ from enum import Enum
 
 from ada.config import MAX_TOKENS
 from ada.datasources.ds_engines import DatasourceEngines, DATASOURCE_RESOLVER
+from ada.datasources.references import ReferenceType
 
 
 class ArticleLength(Enum):
@@ -61,13 +62,12 @@ class QuestionRequest(BaseModel):
         return v
 
 
-class ResourceUsed(BaseModel):
-    url: str
-    references: List[str] = []
-    type: DatasourceEngines
+class Reference(BaseModel):
+    name: str
+    link: str
+    type: ReferenceType
 
 
 class QuestionResponse(BaseModel):
     markdown: str
-    references: Dict[int, str]
-    resources: List[ResourceUsed]
+    references: List[Reference]

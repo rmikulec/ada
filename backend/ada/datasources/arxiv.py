@@ -8,6 +8,7 @@ from typing import List
 
 from ada.datasources.base import AsyncWebSource
 from ada.datasources.search_engines import SearchEngines
+from ada.datasources.references import ReferenceType
 
 logger = logging.getLogger(__name__)
 
@@ -60,4 +61,9 @@ class ArxivSearch(AsyncWebSource):
         search = arxiv.Search(id_list=[paper_id])
         paper = [paper for paper in client.results(search=search)][0]
 
-        return {"text": self._read_pdf(paper)}
+        return {
+            "text": self._read_pdf(paper),
+            "title": resource,
+            "link": paper.pdf_url,
+            "type": ReferenceType.PAPER.value,
+        }

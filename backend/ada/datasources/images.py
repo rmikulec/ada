@@ -1,5 +1,6 @@
 from ada.datasources.base import AsyncWebSource
 from ada.datasources.search_engines import SearchEngines
+from ada.datasources.references import ReferenceType
 
 from typing import List
 import logging
@@ -32,4 +33,4 @@ class ImageWebSearch(AsyncWebSource):
     def get_content(self, resource: str):
         closest_title = difflib.get_close_matches(resource, list(self.images.keys()))[0]
         image = self.images[closest_title]
-        return image
+        return {"title": closest_title, "link": image, "type": ReferenceType.IMAGE.value}

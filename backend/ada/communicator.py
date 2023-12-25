@@ -51,6 +51,8 @@ class AsyncCommunicator:
         self.n_search_terms = n_search_terms
         self.n_datasources = len(datasources)
 
+        self.refs_used = []
+
         # Create system message
         self.system_message = system_template.format(
             age=self.age,
@@ -117,6 +119,8 @@ class AsyncCommunicator:
     def _call_tool(self, tool_name, **kwargs):
         try:
             content = self.function_mapping[tool_name](**kwargs)
+            content["ref_type"] = tool_name
+            self.refs_used.append(content)
             return json.dumps(content)
         except Exception as err:
             logger.error(f"Tool {tool_name} failed: {traceback.format_exc()}")
@@ -193,6 +197,7 @@ class AsyncCommunicator:
                     "JSON created in properly, missing needed keys. Recalling OpenAI to fix..."
                 )
                 response = await self._fix_json(content)
+                # TODO: Replace the last message with this one
                 return self._verify_results(response.choices[0].message.content)
             else:
                 return response
