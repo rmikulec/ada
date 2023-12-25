@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from ada.communicator import AsyncCommunicator as Communicator
 from ada.datasources.ds_engines import DatasourceEngines
-from ada.models import QuestionRequest, QuestionResponse, ResourceUsed
+from ada.models import QuestionRequest, QuestionResponse, Reference, ReferenceType
 
 from uuid import uuid4
 
@@ -37,13 +37,16 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
 
     response = await communicator.ask(question=request.question)
 
-    resources = []
-
     logger.info(response)
 
-    return QuestionResponse(
-        markdown=response["markdown"], references=response["refs_used"], resources=resources
-    )
+    markdown = response["markdown"]
+
+    refs = []
+
+    for ref in communicator.refs_used:
+        refs.append(Reference(name=ref["title"], link=ref["link"], type=ref["type"]))
+
+    return QuestionResponse(markdown=markdown, references=refs)
 
 
 @app.post("/test", response_model=QuestionResponse)

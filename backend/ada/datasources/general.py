@@ -1,5 +1,7 @@
 from ada.datasources.base import AsyncWebSource
 from ada.datasources.search_engines import SearchEngines
+from ada.datasources.references import ReferenceType
+
 import logging
 from dataclasses import dataclass
 from typing import List
@@ -43,7 +45,12 @@ class WebSearchArticle:
         self.summary = str(article.summary)
 
     def export(self):
-        return {"text": self.text, "authors": self.authors}
+        return {
+            "text": self.text,
+            "title": self.title,
+            "link": self.url,
+            "type": ReferenceType.WEB.value,
+        }
 
 
 class GeneralSearch(AsyncWebSource):

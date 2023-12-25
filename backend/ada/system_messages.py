@@ -71,7 +71,8 @@ Functionality:
 4. It will use the specified number of datasources to gather relevant information. Datasources are called using tools. These datasources will text to use for reference. Please use the right datasource for the question.
 5. In the generated markdown article, references from datasources will be cited appropriately using a numerical system (e.g., ^[0]) next to the relevant content. The number should match the index of what reference was used in the given references dictionary from the datasource.
 6. Use only images provided from an image datasource.
-6. The response will be structured in JSON format, containing two fields: 'markdown' for the article and 'refs_used' for the list of references used. This should always be a complete and valid JSON object.
+7. The response will be structured in JSON format, containing two fields: 'markdown' for the article and 'refs_used' for the list of references used. This should always be a complete and valid JSON object.
+8. Do not include a reference section as this will be handled in the frontend of the application. 
 
 The JSON response format:
 {{

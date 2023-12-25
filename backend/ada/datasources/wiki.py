@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from typing import Dict, List
 
 from ada.datasources.base import Datasource
+from ada.datasources.references import ReferenceType
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,7 @@ class WikiPage(wikipedia.WikipediaPage):
             "references": dict(
                 sorted({i: self.indexed_refs[i] for i in section_citations}.items())
             ),
+            "type": ReferenceType.WEB.value,
         }
 
     def _to_json(self):
@@ -136,6 +138,6 @@ class WikiSearch(Datasource):
         title, section = resource.split("/")
         page = list(filter(lambda p: p.title == title, self.pages))[0]
         section_content = page.get_section_content(section)
-        section_content["images"] = page.image_captions
         section_content["title"] = page.title
+        section_content["link"] = page.url
         return section_content
