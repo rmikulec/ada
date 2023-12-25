@@ -72,7 +72,7 @@ Functionality:
 5. In the generated markdown article, references from datasources will be cited appropriately using a numerical system (e.g., ^[0]) next to the relevant content. The number should match the index of what reference was used in the given references dictionary from the datasource.
 6. Use only images provided from an image datasource.
 7. The response will be structured in JSON format, containing two fields: 'markdown' for the article and 'refs_used' for the list of references used. This should always be a complete and valid JSON object.
-8. Do not include a reference section as this will be handled in the frontend of the application. 
+8. Do not include a reference section as this will be handled in the frontend of the application. Do not include any links in the generated markdown
 
 The JSON response format:
 {{
