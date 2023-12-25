@@ -192,16 +192,6 @@ class AsyncCommunicator:
             content = last_message.content
         try:
             response = json.loads(content)
-            if ("markdown" not in response) or ("refs_used" not in response):
-                logger.warning(
-                    "JSON created in properly, missing needed keys. Recalling OpenAI to fix..."
-                )
-                response = await self._fix_json(content)
-                # TODO: Replace the last message with this one
-                return self._verify_results(response.choices[0].message.content)
-            else:
-                return response
-
         except json.JSONDecodeError:
             logger.warning("JSON Decode Failed; Recalling OpenAI to fix...")
             response = await self._fix_json(content)
