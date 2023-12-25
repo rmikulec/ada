@@ -8,11 +8,11 @@ import asyncio
 import tiktoken
 import traceback
 
-from scixplain import DEFAULT_MODEL
-from scixplain.system_messages import BASE_MESSAGE, SEARCH_TERMS, FIX_JSON
-from scixplain.datasources.ds_engines import DatasourceEngines
-from scixplain.datasources.base import AsyncDatasource, Datasource
-from scixplain.models import ArticleLength
+from ada import DEFAULT_MODEL
+from ada.system_messages import BASE_MESSAGE, SEARCH_TERMS, FIX_JSON
+from ada.datasources.ds_engines import DatasourceEngines
+from ada.datasources.base import AsyncDatasource, Datasource
+from ada.models import ArticleLength
 
 
 logger = logging.getLogger(__name__)

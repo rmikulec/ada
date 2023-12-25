@@ -6,8 +6,8 @@ from PyPDF2 import PdfReader
 from tempfile import TemporaryDirectory
 from typing import List
 
-from scixplain.datasources.base import AsyncWebSource
-from scixplain.datasources.search_engines import SearchEngines
+from ada.datasources.base import AsyncWebSource
+from ada.datasources.search_engines import SearchEngines
 
 logger = logging.getLogger(__name__)
 

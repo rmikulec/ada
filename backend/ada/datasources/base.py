@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import requests
 
-from scixplain.datasources.search_engines import SearchEngines
+from ada.datasources.search_engines import SearchEngines
 
 import logging
 import aiohttp

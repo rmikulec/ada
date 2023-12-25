@@ -4,8 +4,8 @@ from typing import Optional, List, Dict
 from uuid import UUID, uuid4
 from enum import Enum
 
-from scixplain.config import MAX_TOKENS
-from scixplain.datasources.ds_engines import DatasourceEngines, DATASOURCE_RESOLVER
+from ada.config import MAX_TOKENS
+from ada.datasources.ds_engines import DatasourceEngines, DATASOURCE_RESOLVER
 
 
 class ArticleLength(Enum):
