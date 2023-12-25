@@ -68,6 +68,16 @@ class Reference(BaseModel):
     type: ReferenceType
 
 
-class QuestionResponse(BaseModel):
+class GPTArticleSection(BaseModel):
+    section_name: str
     markdown: str
+    image: Optional[str] = None
+    references: List[int]
+
+class GPTArticleResponse(BaseModel):
+    article: List[GPTArticleSection]
+
+
+class QuestionResponse(BaseModel):
+    article: GPTArticleResponse
     references: List[Reference]

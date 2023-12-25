@@ -192,6 +192,7 @@ class AsyncCommunicator:
             content = last_message.content
         try:
             response = json.loads(content)
+            return response
         except json.JSONDecodeError:
             logger.warning("JSON Decode Failed; Recalling OpenAI to fix...")
             response = await self._fix_json(content)

@@ -69,7 +69,7 @@ Functionality:
 2. It should use the specified number of resources to gather relevant information. Resources are supplied through calling different tools. Tools can be called more than once if needed. A set of 'enums' are given in each tool. Each 'enum' is a resource.
 3. The response must in a JSON format, with each item in the array being a 'section' that are seperated by what sources are used. References should be cited by putting the index of the used resource in the 'references' array in the JSON resposne. Each section should use at least one reference.
 4. The article markdown should include appropriate headers and other markdown elements to effectively convey the scientific topic in an engaging and educational manner.
-5. Images sections should be placed in the right order of when it is a good spot in the article to show the user an image. Use only images provided from an image datasource, and supply the link as "image"
+5. Images sections should be placed in the right order of when it is a good spot in the article to show the user an image. Use only images provided from an image datasource, and supply the link as "image". Images should not be linked in the markdown. Instead the markdown should be any text (if needed) to accompany the image.
 6. Do not include a reference section as this will be handled in the frontend of the application. Do not include any links in the generated markdown
 7. The response should follow the format below:
 
