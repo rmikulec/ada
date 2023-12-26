@@ -12,7 +12,7 @@ from ada import DEFAULT_MODEL
 from ada.system_messages import BASE_MESSAGE, SEARCH_TERMS, FIX_JSON
 from ada.datasources.ds_engines import DatasourceEngines
 from ada.datasources.base import AsyncDatasource, Datasource
-from ada.models import ArticleLength
+from ada.models import ArticleLength, GPTArticleResponse
 
 
 logger = logging.getLogger(__name__)
@@ -55,6 +55,7 @@ class AsyncCommunicator:
 
         # Create system message
         self.system_message = system_template.format(
+            json_schema=json.dumps(GPTArticleResponse.model_json_schema(), indent=2),
             age=self.age,
             experience=self.experience,
             min_resources=min_resources,
@@ -84,9 +85,11 @@ class AsyncCommunicator:
             ],
             max_tokens=50,
         )
-
         message = response.choices[0].message.content
-        return json.loads(message)[: self.n_search_terms]
+        try:
+            return json.loads(message)[: self.n_search_terms]
+        except json.JSONDecodeError:
+            return json.loads(self._fix_json(message))[: self.n_search_terms]
 
     async def _set_tools(self, datasources: List[AsyncDatasource]):
         async_operations = [
@@ -174,9 +177,14 @@ class AsyncCommunicator:
 
     async def _fix_json(self, json_string: str):
         return await self.client.chat.completions.create(
-            model=DEFAULT_MODEL,
+            model="gpt-3.5-turbo-1106",
             messages=[
-                {"role": "system", "content": FIX_JSON},
+                {
+                    "role": "system",
+                    "content": FIX_JSON.format(
+                        json_string=json.dumps(GPTArticleResponse.model_json_schema(), indent=2)
+                    ),
+                },
                 {"role": "user", "content": json_string},
             ],
             max_tokens=self.max_tokens,
@@ -196,7 +204,8 @@ class AsyncCommunicator:
         except json.JSONDecodeError:
             logger.warning("JSON Decode Failed; Recalling OpenAI to fix...")
             response = await self._fix_json(content)
-            return self._verify_results(response.choices[0].message.content)
+            self.messages[-1].content = response.choices[0].message.content
+            return self._verify_results()
 
     async def ask(self, question: str, export_path: Union[pathlib.Path, str] = None):
         logger.info(f"Question asked: {question}")

@@ -73,43 +73,27 @@ Functionality:
 6. Do not include a reference section as this will be handled in the frontend of the application. Do not include any links in the generated markdown
 7. The response should follow the format below:
 
-The JSON response format:
+The JSON schema:
 
-{{
-    "article": [
-        {{
-            "section_name": name
-            "markdown": markdown,
-            "image": image_link,
-            "references": [ref_num, ...]
-        }},
-        {{
-            "section_name": name
-            "markdown": markdown,
-            "image": image_link,
-            "references": [ref_num, ...]
-        }},
-        ...
-    ]
-}}
+{json_schema}
 
 
 Example Response:
 {{
-    "article": [
+    "sections": [
         {{
-            "section_name": "Intoduction",
-            "markdown": "# Understanding Photosynthesis\\n\\nPhotosynthesis is a process used by plants to convert light into energy.".
+            "header": "# Intoduction",
+            "markdown": "# Introduction \\n Understanding Photosynthesis\\n\\nPhotosynthesis is a process used by plants to convert light into energy.".
             "references": [0]
         }},
         {{
-            "section_name": "Image of a leaf showing photosynthesis process",
+            "header": "Image of a leaf showing photosynthesis process",
             "image": https://plants.com/photosyntesis.jpg,
             "markdown":""This process is crucial for life on Earth.",
             "references":[2]
         }},
         {{
-            "section_name":"Process Details",
+            "header":"## Process Details",
             "markdown": "## Process Details\\n- Light absorption\\n- Energy conversion\\n- Oxygen production\\n\\nFor more in-depth information, photosynthesis involves...",
             "references":[0, 1]
         }}
@@ -134,31 +118,16 @@ The JSON should have a 'markdown' key and a 'ref_used' key
 
 
 The JSON response format:
-{{
-    "article": [
-        {{
-            "section_name": name
-            "markdown": markdown,
-            "image": image_link,
-            "references": [ref_num, ...]
-        }},
-        {{
-            "section_name": name
-            "markdown": markdown,
-            "image": image_link,
-            "references": [ref_num, ...]
-        }},
-        ...
-    ]
-}}
+
+{json_schema}
 
 
 Example Response:
 {{
-    "article": [
+    "sections": [
         {{
-            "section_name": "Intoduction",
-            "markdown": "# Understanding Photosynthesis\\n\\nPhotosynthesis is a process used by plants to convert light into energy.".
+            "section_name": "# Intoduction",
+            "markdown": "# Intoduction \\n Understanding Photosynthesis\\n\\nPhotosynthesis is a process used by plants to convert light into energy.".
             "references": [0]
         }},
         {{
@@ -168,7 +137,7 @@ Example Response:
             "references":[2]
         }},
         {{
-            "section_name":"Process Details",
+            "section_name":"## Process Details",
             "markdown": "## Process Details\\n- Light absorption\\n- Energy conversion\\n- Oxygen production\\n\\nFor more in-depth information, photosynthesis involves...",
             "references":[0, 1]
         }}

@@ -14,7 +14,7 @@ function App() {
       <QuestionProvider>
         <div className="App">
           <header className="App-header">
-            <h1>Ada</h1>
+            <h1>ada</h1>
           </header>
           <div id="chat-section" className="container-fluid" style={{ minHeight: '100vh'}}>
             <ReferenceOverlay/>

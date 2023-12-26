@@ -1,4 +1,5 @@
 import Offcanvas from 'react-bootstrap/Offcanvas';
+import Markdown from 'react-markdown';
 
 import { useAppStateContext } from '../services/appProvider';
 import { useQuestionContext } from '../services/questionProvider';
@@ -6,7 +7,7 @@ import Reference from './Reference';
 
 function ReferenceOverlay() {
     const { showRefs, setShowRefs } = useAppStateContext();
-    const { loading, error, response, questions, selectedQuestion, submitQuestion, selectQuestion } = useQuestionContext();
+    const { selectedQuestion } = useQuestionContext();
 
     const handleClose = () => setShowRefs(false);
 
@@ -17,12 +18,17 @@ function ReferenceOverlay() {
         </Offcanvas.Header>
         <Offcanvas.Body>
             {selectedQuestion && selectedQuestion.references.length > 0 ? (
-                selectedQuestion.references.map((ref) => (
-                    <Reference
-                        type={ref.type}
-                        name={ref.name}
-                        link={ref.link}
-                    />
+                selectedQuestion.article.map((section) => (
+                    section.references.map((i_ref) => (
+                        <div style={{paddingTop: "20px", paddingLeft: "20px", paddingBottom:"10px"}}>
+                            <Markdown>{section.header}</Markdown>
+                            <Reference
+                                type={selectedQuestion.references[i_ref].type}
+                                name={selectedQuestion.references[i_ref].name}
+                                link={selectedQuestion.references[i_ref].link}
+                            />
+                        </div>
+                    ))
                 ))
             ) : (
                 <p>No references used</p>
