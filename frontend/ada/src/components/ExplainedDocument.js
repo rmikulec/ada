@@ -30,7 +30,10 @@ function ExplainedDocument() {
               markdown={section.markdown}
             />
           ) : (
-            <Markdown>{section.markdown}</Markdown>
+            <div class="markdown-article">
+              <Markdown>{section.header}</Markdown>
+              <Markdown>{section.markdown}</Markdown>
+            </div>
           )}
         </div>
       ))

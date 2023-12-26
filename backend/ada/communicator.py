@@ -135,6 +135,7 @@ class AsyncCommunicator:
             )
 
     async def _call_openai(self):
+        self.messages.append({"role": "user", "content": json.dumps(self.refs_used, indent=2)})
         response = await self.client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=self.messages,

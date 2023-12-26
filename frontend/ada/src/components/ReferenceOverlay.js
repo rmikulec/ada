@@ -11,31 +11,31 @@ function ReferenceOverlay() {
 
     const handleClose = () => setShowRefs(false);
 
-  return (
-    <Offcanvas show={showRefs} placement='end' onHide={handleClose}>
-        <Offcanvas.Header closeButton>
-            <Offcanvas.Title>References</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-            {selectedQuestion && selectedQuestion.references.length > 0 ? (
-                selectedQuestion.article.map((section) => (
-                    section.references.map((i_ref) => (
+    return (
+        <Offcanvas show={showRefs} placement='end' onHide={handleClose}>
+            <Offcanvas.Header closeButton>
+                <Offcanvas.Title>References</Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+                {selectedQuestion && selectedQuestion.references.length > 0 ? (
+                    selectedQuestion.article.map((section) => (
                         <div style={{paddingTop: "20px", paddingLeft: "20px", paddingBottom:"10px"}}>
                             <Markdown>{section.header}</Markdown>
-                            <Reference
-                                type={selectedQuestion.references[i_ref].type}
-                                name={selectedQuestion.references[i_ref].name}
-                                link={selectedQuestion.references[i_ref].link}
-                            />
+                            {section.references.map((i_ref) => (
+                                <Reference
+                                    type={selectedQuestion.references[i_ref].type}
+                                    name={selectedQuestion.references[i_ref].name}
+                                    link={selectedQuestion.references[i_ref].link}
+                                />
+                            ))}
                         </div>
                     ))
-                ))
-            ) : (
-                <p>No references used</p>
-            )}
-        </Offcanvas.Body>
-    </Offcanvas>
-  );
+                ) : (
+                    <p>No references used</p>
+                )}
+            </Offcanvas.Body>
+        </Offcanvas>
+    );
 }
 
 export default ReferenceOverlay;

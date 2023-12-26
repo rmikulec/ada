@@ -84,9 +84,6 @@ class WikiPage(wikipedia.WikipediaPage):
             "text": section_text,
             "link": self.url + "#" + section_name,
             "title": self.title + "/" + section_name,
-            "references": dict(
-                sorted({i: self.indexed_refs[i] for i in section_citations}.items())
-            ),
             "type": ReferenceType.WEB.value,
         }
 
