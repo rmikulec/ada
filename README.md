@@ -1,7 +1,12 @@
 # Ada
-Have any of you science questions answered in well structured way... with references!
+Have any of you science questions answered in **well structured way**...
 
-<img width="1509" alt="Screenshot 2023-12-15 at 12 30 57 PM" src="https://github.com/rmikulec/scixplain/assets/15821744/e6cb1e52-3781-4a65-accb-c5b1325fa6b9">
+![image](https://github.com/rmikulec/ada/assets/15821744/d3804f92-22d3-4da0-87b5-0234b29ce4bc)
+
+
+**With references!!**
+
+![image](https://github.com/rmikulec/ada/assets/15821744/b2bbe25e-bfd4-4fdd-95b9-93dc1ef2a09c)
 
 
 
