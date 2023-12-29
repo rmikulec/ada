@@ -183,7 +183,7 @@ class AsyncCommunicator:
                 {
                     "role": "system",
                     "content": FIX_JSON.format(
-                        json_string=json.dumps(GPTArticleResponse.model_json_schema(), indent=2)
+                        json_schema=json.dumps(GPTArticleResponse.model_json_schema(), indent=2)
                     ),
                 },
                 {"role": "user", "content": json_string},
