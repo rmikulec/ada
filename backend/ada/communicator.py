@@ -83,13 +83,14 @@ class AsyncCommunicator:
                 {"role": "system", "content": SEARCH_TERMS},
                 {"role": "user", "content": question},
             ],
+            response_format={"type": "json_object"},
             max_tokens=50,
         )
         message = response.choices[0].message.content
         try:
-            return json.loads(message)[: self.n_search_terms]
+            return json.loads(message)['terms'][: self.n_search_terms]
         except json.JSONDecodeError:
-            return json.loads(self._fix_json(message))[: self.n_search_terms]
+            return json.loads(self._fix_json(message))['terms'][: self.n_search_terms]
 
     async def _set_tools(self, datasources: List[AsyncDatasource]):
         async_operations = [

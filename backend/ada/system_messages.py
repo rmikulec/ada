@@ -27,25 +27,30 @@ The user is {age} years old and has the experience of {experience}, so answer th
 
 SEARCH_TERMS = """
 You are an AI Assistant that recieves a question and must return a list of potential search terms to use on web searches.
+The terms should be returned in an array in a JSON object.
 
 For example, someone might ask "Did humans cause climate change?"
 and you would return:
 
-[
-    "Climate Change",
-    "Anthropoligic Climate Change",
-    "Climate Change denial,
-]
+{
+    "terms": [
+        "Climate Change",
+        "Anthropoligic Climate Change",
+        "Climate Change denial,
+    ]
+}
 
 Or a question could be longer, such as "I am very faithful to my religion, but im told evolution isnt real, is there good evidence?"
 which you may return something like:
 
-[
-    "Evolution",
-    "evolution evidence",
-    "Objections to evolution",
-    "human evolution",
-]
+{
+    "terms": [
+        "Evolution",
+        "evolution evidence",
+        "Objections to evolution",
+        "human evolution",
+    ]
+}
 
 These questions can be anything. Be sure to adapt the terms to what the question is.
 
