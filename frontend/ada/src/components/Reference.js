@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IoArrowDownCircle, IoImageOutline, IoDocumentOutline, IoGlobeOutline } from 'react-icons/io5';
+import { IoArrowDownCircleOutline, IoImageOutline, IoDocumentOutline, IoGlobeOutline, IoHelpCircleOutline } from 'react-icons/io5';
 
 const Reference = ({ type, name, link }) => {
   const [isOpen, setOpen] = useState(false);
@@ -52,7 +52,7 @@ const Reference = ({ type, name, link }) => {
       break;
     default:
       color = 'grey';
-      Icon = IoDocumentOutline;
+      Icon = IoHelpCircleOutline;
   }
 
   return (
@@ -83,7 +83,7 @@ const Reference = ({ type, name, link }) => {
             {name}
           </p>
         </div>
-        <IoArrowDownCircle
+        <IoArrowDownCircleOutline
           onClick={toggleOpen} // Only the arrow is clickable to toggle
           style={{ fontSize: '20px', transition: 'transform 0.3s', transform: `rotate(${isOpen ? '180deg' : '0deg'})`, cursor: 'pointer' }}
         />

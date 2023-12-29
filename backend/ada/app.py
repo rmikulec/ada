@@ -1,12 +1,12 @@
-import json
 import logging
+import json
 import logging.config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from ada.communicator import AsyncCommunicator as Communicator
 from ada.datasources.ds_engines import DatasourceEngines
-from ada.models import QuestionRequest, QuestionResponse, Reference, ReferenceType
+from ada.models import QuestionRequest, QuestionResponse, Reference, GPTArticleResponse
 
 from uuid import uuid4
 
@@ -35,34 +35,22 @@ async def ask(request: QuestionRequest) -> QuestionResponse:
         datasources=[ds.engine for ds in request.config.datasources],
     )
 
-    response = await communicator.ask(question=request.question)
-
-    logger.info(response)
-
-    markdown = response["markdown"]
+    article = await communicator.ask(question=request.question)
 
     refs = []
 
     for ref in communicator.refs_used:
         refs.append(Reference(name=ref["title"], link=ref["link"], type=ref["type"]))
 
-    return QuestionResponse(markdown=markdown, references=refs)
+    response = QuestionResponse(article=article, references=refs)
+    logger.info(response.model_dump_json())
+    return response
 
 
 @app.post("/test", response_model=QuestionResponse)
 def test(request: QuestionRequest) -> QuestionResponse:
-    print(request)
-    return QuestionResponse(
-        markdown=f"# Success!!! \n\n markdown as be updated!!! \n\n ### TestID \n\n {uuid4()}",
-        resources=[
-            ResourceUsed(
-                url="https://google/com",
-                sections=["only one"],
-                references=["https://bing.com"],
-                type=DatasourceEngines.WIKI,
-            )
-        ],
-    )
+    response = json.load(open("./test.json", "r"))
+    return QuestionResponse(**response)
 
 
 if __name__ == "__main__":

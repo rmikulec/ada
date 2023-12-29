@@ -24,12 +24,14 @@ export const QuestionProvider = ({ children }) => {
     try {
       const response = await postQuestion(question);
       // You can handle the response as needed
+      console.log(response)
       setResponse(response);
+
       const newQueston = {
         id: questionIdCounter,
         text: question,
         user: 'user',
-        answer: response.markdown,
+        article: response.article.sections,
         references: response.references
       };
       setQuestions(oldQuestions => [...oldQuestions, newQueston])

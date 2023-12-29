@@ -70,8 +70,8 @@ class WikiPage(wikipedia.WikipediaPage):
                 sections[current_section].append(sub_data)
         return sections
 
-    def get_section_content(self, section):
-        section = self.indexed_content[section]
+    def get_section_content(self, section_name):
+        section = self.indexed_content[section_name]
         section_text = "\n".join([paragraph["text"] for paragraph in section])
         section_citations = []
         for paragraph in section:
@@ -82,9 +82,8 @@ class WikiPage(wikipedia.WikipediaPage):
         )
         return {
             "text": section_text,
-            "references": dict(
-                sorted({i: self.indexed_refs[i] for i in section_citations}.items())
-            ),
+            "link": self.url + "#" + section_name,
+            "title": self.title + "/" + section_name,
             "type": ReferenceType.WEB.value,
         }
 
@@ -138,6 +137,4 @@ class WikiSearch(Datasource):
         title, section = resource.split("/")
         page = list(filter(lambda p: p.title == title, self.pages))[0]
         section_content = page.get_section_content(section)
-        section_content["title"] = page.title
-        section_content["link"] = page.url
         return section_content
