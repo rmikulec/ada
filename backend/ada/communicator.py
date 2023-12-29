@@ -90,7 +90,7 @@ class AsyncCommunicator:
         try:
             return json.loads(message)['terms'][: self.n_search_terms]
         except json.JSONDecodeError:
-            return json.loads(self._fix_json(message))['terms'][: self.n_search_terms]
+            return json.loads(await self._fix_json(message))['terms'][: self.n_search_terms]
 
     async def _set_tools(self, datasources: List[AsyncDatasource]):
         async_operations = [
