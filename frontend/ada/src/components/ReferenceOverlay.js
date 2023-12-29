@@ -1,5 +1,4 @@
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import Markdown from 'react-markdown';
 
 import { useAppStateContext } from '../services/appProvider';
 import { useQuestionContext } from '../services/questionProvider';
@@ -18,16 +17,13 @@ function ReferenceOverlay() {
             </Offcanvas.Header>
             <Offcanvas.Body>
                 {selectedQuestion && selectedQuestion.references.length > 0 ? (
-                    selectedQuestion.article.map((section) => (
-                        <div style={{paddingTop: "20px", paddingLeft: "20px", paddingBottom:"10px"}}>
-                            <Markdown>{section.header}</Markdown>
-                            {section.references.map((i_ref) => (
+                    selectedQuestion.references.map((ref) => (
+                        <div style={{paddingTop: "2px", paddingLeft: "20px", paddingBottom:"2px"}}>
                                 <Reference
-                                    type={selectedQuestion.references[i_ref].type}
-                                    name={selectedQuestion.references[i_ref].name}
-                                    link={selectedQuestion.references[i_ref].link}
+                                    type={ref.type}
+                                    name={ref.name}
+                                    link={ref.link}
                                 />
-                            ))}
                         </div>
                     ))
                 ) : (

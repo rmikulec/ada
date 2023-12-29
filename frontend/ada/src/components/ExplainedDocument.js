@@ -32,6 +32,7 @@ function ExplainedDocument() {
           ) : (
             <div class="markdown-article">
               <Markdown>{section.header}</Markdown>
+              <p>References: [{section.references}]</p>
               <Markdown>{section.markdown}</Markdown>
             </div>
           )}

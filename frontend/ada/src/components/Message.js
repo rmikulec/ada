@@ -9,7 +9,7 @@ import './Message.css'
 function Message({ id, text, isSelected, onClick }) {
   const messageClass = isSelected ? 'user' : 'chatbot';
   const messageID = id
-  const { showRefs, setShowRefs }  = useAppStateContext();
+  const { setShowRefs }  = useAppStateContext();
 
 
   const handleClick = () => {
