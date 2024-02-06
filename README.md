@@ -46,7 +46,7 @@ Then run the following to start the backend server
 
 ```bash
 cd ./backend
-python3 -m scixplain.app
+python3 -m ada.app
 ```
 
 #### Start the react app:
@@ -60,7 +60,7 @@ npx npm install
 Then run the following to start the frontend server
 
 ```bash
-cd frontend/scixplain
+cd frontend/ada
 npx npm start
 ```
 
