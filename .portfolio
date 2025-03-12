@@ -1,5 +1,8 @@
 {
     "name": "Ada",
     "description": "A GPT-driven science explainer! \n Ask any question and have an article answering your question generated in minutes. View any sources in the sidebar to learn more.",
-    "url": "https://github.com/rmikulec/ada"
+    "url": "https://github.com/rmikulec/ada",
+    "imageURLs": [
+        "https://private-user-images.githubusercontent.com/15821744/292813724-d3804f92-22d3-4da0-87b5-0234b29ce4bc.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDE4MDgwODEsIm5iZiI6MTc0MTgwNzc4MSwicGF0aCI6Ii8xNTgyMTc0NC8yOTI4MTM3MjQtZDM4MDRmOTItMjJkMy00ZGEwLTg3YjUtMDIzNGIyOWNlNGJjLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMTIlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzEyVDE5Mjk0MVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTc1OGMwZWFkZjEwNGQ0YTJlY2ZlZjUwZGNhODM5OTI4Y2E2MDg3N2YyNjU4ZWUzYjIyYjI1ZjY3ZDc5N2JmZmYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.qRKR3hZhi7G2pWHPZHD2eYMz7kBhVKtfeT358k-pD6E"
+    ]
 }
