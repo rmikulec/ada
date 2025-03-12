@@ -1,1 +1,5 @@
-
+{
+    "name": "Ada",
+    "description": "A GPT-driven science explainer!",
+    "url": "https://github.com/rmikulec/ada"
+}
