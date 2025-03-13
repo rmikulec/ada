@@ -38,6 +38,7 @@ class AsyncCommunicator:
         max_tokens=4_096,
         datasources: List[DatasourceEngines] = [],
         min_resources: int = 3,
+        max_resources: int = 5,
         n_search_terms: int = 3,
         article_length: ArticleLength = ArticleLength.LONG,
     ):
@@ -59,6 +60,7 @@ class AsyncCommunicator:
             age=self.age,
             experience=self.experience,
             min_resources=min_resources,
+            max_resources=max_resources,
             article_length=article_length.value,
         )
         self.system_message_n_tokens = self._get_num_tokens(self.system_message)
@@ -80,7 +82,10 @@ class AsyncCommunicator:
         response = await self.client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=[
-                {"role": "system", "content": SEARCH_TERMS},
+                {
+                    "role": "system",
+                    "content": SEARCH_TERMS.format(age=self.age, experience=self.experience),
+                },
                 {"role": "user", "content": question},
             ],
             response_format={"type": "json_object"},
@@ -88,9 +93,9 @@ class AsyncCommunicator:
         )
         message = response.choices[0].message.content
         try:
-            return json.loads(message)['terms'][: self.n_search_terms]
+            return json.loads(message)["terms"][: self.n_search_terms]
         except json.JSONDecodeError:
-            return json.loads(await self._fix_json(message))['terms'][: self.n_search_terms]
+            return json.loads(await self._fix_json(message))["terms"][: self.n_search_terms]
 
     async def _set_tools(self, datasources: List[AsyncDatasource]):
         async_operations = [
@@ -117,7 +122,7 @@ class AsyncCommunicator:
                 logger.error(f"Tool {datasource.name} not added: \n {traceback.format_exc()}")
 
     def _get_num_tokens(self, text):
-        encoder = tiktoken.encoding_for_model(DEFAULT_MODEL)
+        encoder = tiktoken.encoding_for_model("gpt-4")
         return len(encoder.encode(text))
 
     def _call_tool(self, tool_name, **kwargs):

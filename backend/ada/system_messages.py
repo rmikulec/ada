@@ -27,35 +27,38 @@ The user is {age} years old and has the experience of {experience}, so answer th
 
 SEARCH_TERMS = """
 You are an AI Assistant that recieves a question and must return a list of potential search terms to use on web searches.
-The terms should be returned in an array in a JSON object.
+The terms should be returned in an array in a JSON object. You will be given the age and experience of the user to adjust
+search terms based on that.
 
 For example, someone might ask "Did humans cause climate change?"
 and you would return:
 
-{
+{{
     "terms": [
         "Climate Change",
         "Anthropoligic Climate Change",
         "Climate Change denial,
     ]
-}
+}}
 
 Or a question could be longer, such as "I am very faithful to my religion, but im told evolution isnt real, is there good evidence?"
 which you may return something like:
 
-{
+{{
     "terms": [
         "Evolution",
         "evolution evidence",
         "Objections to evolution",
         "human evolution",
     ]
-}
+}}
 
 These questions can be anything. Be sure to adapt the terms to what the question is.
 
 Please only return answers in a python list format. Return at most 5 terms.
 
+The user's age: {age}
+The user's experience: {experience}
 """
 
 
@@ -110,6 +113,7 @@ Example Response:
 The user is {age} years old.
 The user's experience is {experience}
 You must use at least {min_resources} resources to answer the queston
+You must use at most {max_resources} resources to answer the question
 The article should be around {article_length} words long
 """
 
