@@ -6,7 +6,7 @@
   "tags": ["python", "fastapi", "react", "openai", "llm"],
   "color": "#6366f1",
   "featured": 2,
-  "status": "active",
+  "status": "archived",
   "images": [
     "https://github.com/rmikulec/ada/assets/15821744/d3804f92-22d3-4da0-87b5-0234b29ce4bc",
     "https://github.com/rmikulec/ada/assets/15821744/b2bbe25e-bfd4-4fdd-95b9-93dc1ef2a09c"
